@@ -101,12 +101,28 @@ body { display: flex; }
   margin-bottom: 4px;
 }
 .nav-section-label {
-  font-size: 13px;
-  font-weight: 700;
-  color: #BFD3E8;
-  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 800;
+  color: #fff;
   letter-spacing: 0.5px;
-  padding: 4px 22px 8px;
+  padding: 4px 22px 10px;
+}
+.nav-section-label .icon {
+  width: 18px;
+  height: 18px;
+  stroke: var(--accent);
+  fill: none;
+  stroke-width: 2;
+  flex-shrink: 0;
+}
+/* 두 번째 이후의 1Depth 메뉴 그룹은 앞 그룹의 하위 메뉴처럼 보이지 않도록 위쪽에 여백과 구분선을 둔다 */
+.nav-group + .nav-section-label {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, .15);
 }
 .file-upload-btn {
   display: flex;
@@ -162,24 +178,30 @@ body { display: flex; }
   color: #BFD3E8;
   margin-top: 4px;
 }
+.nav-group {
+  position: relative;
+  margin: 0 0 8px;
+  padding-left: 18px;
+}
+.nav-group::before {
+  content: '';
+  position: absolute;
+  left: 31px;
+  top: 2px;
+  bottom: 10px;
+  width: 1px;
+  background: rgba(255, 255, 255, .15);
+}
 .nav-item {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 13px 22px;
+  padding: 13px 22px 13px 26px;
   cursor: pointer;
   font-size: 14px;
   color: #D9E4F0;
   border-left: 3px solid transparent;
   transition: transform .16s ease, background .16s ease, color .16s ease;
-}
-.nav-item .icon {
-  width: 18px;
-  height: 18px;
-  stroke: var(--accent);
-  fill: none;
-  stroke-width: 2;
-  flex-shrink: 0;
 }
 .nav-item:hover {
   background: rgba(255, 255, 255, .08);
@@ -479,6 +501,9 @@ thead th:first-child, thead th:nth-child(2) { text-align: left; }
 tbody td { padding: 8px 10px; border-bottom: 1px solid var(--border); text-align: right; white-space: nowrap; }
 tbody td:first-child, tbody td:nth-child(2) { text-align: left; }
 tbody tr:hover { background: var(--bg); }
+.tbl-center th, .tbl-center td { text-align: center !important; }
+.tbl-compact th, .tbl-compact td { padding: 6px 6px; font-size: 13px; }
+.ellipsis { overflow: hidden; text-overflow: ellipsis; }
 .table-scroll { max-height: 420px; overflow-y: auto; overflow-x: auto; }
 .rank {
   display: inline-block;
@@ -561,6 +586,7 @@ tbody tr:hover { background: var(--bg); }
   .filter-container .filter-item .filter-select { width: 100%; min-width: 0; box-sizing: border-box; }
   .filter-apply-btn, .print-btn { flex: 1 1 auto; justify-content: center; }
   .card { padding: 14px 14px; }
+  .ellipsis { max-width: 90px; }
 }
 
 /* ---------- 인쇄 (왼쪽 메뉴 제외, 콘텐츠 영역만) ---------- */
@@ -597,14 +623,18 @@ tbody tr:hover { background: var(--bg); }
       <input type="file" id="inputCompanyExcel" accept=".xlsx" style="display:none;">
     </label>
   </div>
-  <div class="nav-section-label">관리자 통계/보고서</div>
-  <nav>
-    <div class="nav-item active" data-page="p1"><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>종합현황</div>
-    <div class="nav-item" data-page="p3"><svg class="icon" viewBox="0 0 24 24"><path d="M3 21h18"/><rect x="5" y="10" width="3" height="11"/><rect x="10.5" y="6" width="3" height="15"/><rect x="16" y="13" width="3" height="8"/></svg>업체별 비교</div>
-    <div class="nav-item" data-page="p4"><svg class="icon" viewBox="0 0 24 24"><path d="M12 2C7 2 4 6 4 10c0 6 8 12 8 12s8-6 8-12c0-4-3-8-8-8z"/><circle cx="12" cy="10" r="3"/></svg>지역별 현황</div>
-    <div class="nav-item" data-page="p5"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v18M3 12h18"/></svg>성별·도체 분석</div>
-    <div class="nav-item" data-page="p6"><svg class="icon" viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>지급률 분석</div>
-    <div class="nav-item" data-page="p7"><svg class="icon" viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>데이터 품질·이상치</div>
+  <div class="nav-section-label"><svg class="icon" viewBox="0 0 24 24"><path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6l8-4z"/><path d="M9 12l2 2 4-4"/></svg>관리자 통계/보고서</div>
+  <nav class="nav-group">
+    <div class="nav-item active" data-page="p1">종합현황</div>
+    <div class="nav-item" data-page="p3">업체별 비교</div>
+    <div class="nav-item" data-page="p4">지역별 현황</div>
+    <div class="nav-item" data-page="p5">성별·도체 분석</div>
+    <div class="nav-item" data-page="p6">지급률 분석</div>
+    <div class="nav-item" data-page="p7">데이터 품질·이상치</div>
+  </nav>
+  <div class="nav-section-label"><svg class="icon" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18"/><path d="M9 8h1M14 8h1M9 12h1M14 12h1M9 16h1M14 16h1"/></svg>업체 통계/보고서</div>
+  <nav class="nav-group">
+    <div class="nav-item" data-page="p8">종합현황</div>
   </nav>
 </div>
 <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
@@ -619,8 +649,8 @@ tbody tr:hover { background: var(--bg); }
     </div>
     <div class="period">조사기간 2026-01-01 ~ 2026-07-23 · 자료: 축산물품질평가원 돼지거래가격조사시스템</div>
   </div>
-  <div class="filter-container">
-    <div class="filter-item">
+  <div class="filter-container" id="filterContainer">
+    <div class="filter-item" id="filterRegionItem">
       <label for="filterRegion">지역</label>
       <select id="filterRegion" class="filter-select">
         <option value="">전체 지역</option>
@@ -665,6 +695,9 @@ tbody tr:hover { background: var(--bg); }
 
   <!-- ============ P7 데이터 품질 ============ -->
   <div class="page" id="p7"></div>
+
+  <!-- ============ P8 업체용 종합현황 ============ -->
+  <div class="page" id="p8"></div>
 
   <div class="footer">돼지 거래가격정보 통계 분석 대시보드 · 원본 데이터: 돼지_거래가격정보_202601_202607.xlsx, 업체정보_202601_202607.xlsx · 총 3,528건 거래 · 26개 참여업체</div>
 </div>
@@ -1693,6 +1726,9 @@ function getExcelRegistrationDateRange() {
 }
 
 // 업체정보 엑셀에서 담당자 조회에 쓸 시도명(지역) 목록을 뽑아온다 (사용중인 업체 기준)
+// 실제 운영 데이터가 아닌 테스트용 업체 계정. 통계·필터·미참여업체 집계 등 모든 산출 과정에서 제외한다.
+const TEST_COMPANIES = ['돼지거래test'];
+
 function getDistinctRegions() {
   if (!excelCompanyRows) return [];
   const headers = excelCompanyRows[0] || [];
@@ -1706,7 +1742,7 @@ function getDistinctRegions() {
     const name = row[nameIdx];
     const region = row[regionIdx];
     const useYn = row[useIdx] || 'Y';
-    if (name && useYn === 'Y' && region) regions.add(region);
+    if (name && useYn === 'Y' && region && !TEST_COMPANIES.includes(name)) regions.add(region);
   }
   return [...regions].sort((a, b) => a.localeCompare(b, 'ko'));
 }
@@ -1736,7 +1772,7 @@ function getDistinctCompanies(regionScope) {
     const name = row[nameIdx];
     const region = row[regionIdx];
     const useYn = row[useIdx] || 'Y';
-    if (!name || useYn !== 'Y') continue;
+    if (!name || useYn !== 'Y' || TEST_COMPANIES.includes(name)) continue;
     if (regionScope && region !== regionScope) continue;
     companies.push(name);
   }
@@ -1837,7 +1873,7 @@ function processDashboardData(startDate, endDate, regionFilter, companyFilter) {
     const name = row[compNameIdx];
     const region = row[compRegionIdx] || '';
     const useYn = row[compUseIdx] || 'Y';
-    if (name && useYn === 'Y') {
+    if (name && useYn === 'Y' && !TEST_COMPANIES.includes(name)) {
       companyRegionMap[name] = region;
       allRegisteredCompanies.add(name);
     }
@@ -1847,7 +1883,27 @@ function processDashboardData(startDate, endDate, regionFilter, companyFilter) {
   const validRows = [];
   const rawDataQualityAnomalyList = [];
   let nullRateCount = 0;
-  
+
+  // 원본 엑셀의 입력 항목 전체(지급률 외)에 대한 결측 현황 집계용 필드 정의
+  const fieldDefs = [
+    { key: '두수(생돈매입)', idx: 2 },
+    { key: '생체중계(kg)', idx: 3 },
+    { key: '총거래금액(원)', idx: 4 },
+    { key: '지급률(%)', idx: 5 },
+    { key: '도체두수(계)', idx: 6 },
+    { key: '도체중(계,kg)', idx: 7 },
+    { key: '암 두수', idx: 8 },
+    { key: '암 도체중(kg)', idx: 9 },
+    { key: '거세 두수', idx: 10 },
+    { key: '거세 도체중(kg)', idx: 11 },
+    { key: '수 두수', idx: 12 },
+    { key: '수 도체중(kg)', idx: 13 },
+    { key: '적용단가 유형', idx: 14 },
+    { key: '적용단가(원/kg)', idx: 15 }
+  ];
+  const companyFieldMissingCounts = {}; // { [업체]: { [항목]: 결측건수 } }
+  const isBlank = v => v === null || v === undefined || v === '';
+
   // 가격 엑셀의 데이터 순회
   for (let i = 3; i < excelPriceRows.length; i++) {
     const r = excelPriceRows[i];
@@ -1904,7 +1960,17 @@ function processDashboardData(startDate, endDate, regionFilter, companyFilter) {
     if (paymentRate === null) {
       nullRateCount++;
     }
-    
+
+    if (!companyFieldMissingCounts[company]) {
+      companyFieldMissingCounts[company] = {};
+      fieldDefs.forEach(f => { companyFieldMissingCounts[company][f.key] = 0; });
+    }
+    fieldDefs.forEach(f => {
+      if (isBlank(r[f.idx])) {
+        companyFieldMissingCounts[company][f.key]++;
+      }
+    });
+
     const rowObj = {
       company,
       date: dateStr,
@@ -2011,12 +2077,13 @@ function processDashboardData(startDate, endDate, regionFilter, companyFilter) {
     // 주간 파싱
     const sunStr = getSundayDateString(r.date);
     if (!weeklyGroup[sunStr]) {
-      weeklyGroup[sunStr] = { week: sunStr, count: 0, head: 0, amount: 0, live: 0, rateSum: 0, rateCount: 0 };
+      weeklyGroup[sunStr] = { week: sunStr, count: 0, head: 0, amount: 0, live: 0, carcass: 0, rateSum: 0, rateCount: 0 };
     }
     weeklyGroup[sunStr].count++;
     weeklyGroup[sunStr].head += r.headCount;
     weeklyGroup[sunStr].amount += r.totalAmount;
     weeklyGroup[sunStr].live += r.liveWeight;
+    weeklyGroup[sunStr].carcass += r.carcassWeight;
     if (r.paymentRate !== null) {
       weeklyGroup[sunStr].rateSum += r.paymentRate;
       weeklyGroup[sunStr].rateCount++;
@@ -2024,12 +2091,13 @@ function processDashboardData(startDate, endDate, regionFilter, companyFilter) {
 
     // 일별 파싱
     if (!dailyGroup[r.date]) {
-      dailyGroup[r.date] = { day: r.date, count: 0, head: 0, amount: 0, live: 0, rateSum: 0, rateCount: 0 };
+      dailyGroup[r.date] = { day: r.date, count: 0, head: 0, amount: 0, live: 0, carcass: 0, rateSum: 0, rateCount: 0 };
     }
     dailyGroup[r.date].count++;
     dailyGroup[r.date].head += r.headCount;
     dailyGroup[r.date].amount += r.totalAmount;
     dailyGroup[r.date].live += r.liveWeight;
+    dailyGroup[r.date].carcass += r.carcassWeight;
     if (r.paymentRate !== null) {
       dailyGroup[r.date].rateSum += r.paymentRate;
       dailyGroup[r.date].rateCount++;
@@ -2037,9 +2105,9 @@ function processDashboardData(startDate, endDate, regionFilter, companyFilter) {
 
     // 업체 파싱
     if (!companyGroup[r.company]) {
-      companyGroup[r.company] = { 
-        name: r.company, count: 0, head: 0, live: 0, amount: 0, 
-        rateSum: 0, rateCount: 0, prices: [], region: r.region 
+      companyGroup[r.company] = {
+        name: r.company, count: 0, head: 0, live: 0, amount: 0,
+        rateSum: 0, rateCount: 0, prices: [], region: r.region, lastRegDate: r.regDate
       };
     }
     companyGroup[r.company].count++;
@@ -2047,6 +2115,9 @@ function processDashboardData(startDate, endDate, regionFilter, companyFilter) {
     companyGroup[r.company].live += r.liveWeight;
     companyGroup[r.company].amount += r.totalAmount;
     companyGroup[r.company].prices.push(r.unitPrice);
+    if (r.regDate > companyGroup[r.company].lastRegDate) {
+      companyGroup[r.company].lastRegDate = r.regDate;
+    }
     if (r.paymentRate !== null) {
       companyGroup[r.company].rateSum += r.paymentRate;
       companyGroup[r.company].rateCount++;
@@ -2098,6 +2169,7 @@ function processDashboardData(startDate, endDate, regionFilter, companyFilter) {
     "총생체중": g.live,
     "총거래금액": g.amount,
     "평균단가": g.live > 0 ? Math.round(g.amount / g.live) : 0,
+    "도체율": g.live > 0 ? parseFloat((g.carcass / g.live * 100).toFixed(2)) : 0,
     "평균지급률": g.rateCount > 0 ? parseFloat((g.rateSum / g.rateCount).toFixed(2)) : null
   })).sort((a,b)=>a.주.localeCompare(b.주));
 
@@ -2109,6 +2181,7 @@ function processDashboardData(startDate, endDate, regionFilter, companyFilter) {
     "총생체중": g.live,
     "총거래금액": g.amount,
     "평균kg당가격": g.live > 0 ? Math.round(g.amount / g.live) : 0,
+    "도체율": g.live > 0 ? parseFloat((g.carcass / g.live * 100).toFixed(2)) : 0,
     "평균지급률": g.rateCount > 0 ? parseFloat((g.rateSum / g.rateCount).toFixed(2)) : null
   })).sort((a,b)=>a.일자.localeCompare(b.일자));
 
@@ -2136,6 +2209,27 @@ function processDashboardData(startDate, endDate, regionFilter, companyFilter) {
     };
   });
   
+  // 업체별 항목 입력 현황 (지급률 외 전체 입력 항목의 업체별 입력건수/총건수)
+  // 성별(암/거세/수) 상세 두수·도체중은 필수 입력값이 아니므로 이 표에서는 제외한다.
+  const NON_REQUIRED_FIELD_KEYS = ['암 두수', '암 도체중(kg)', '거세 두수', '거세 도체중(kg)', '수 두수', '수 도체중(kg)'];
+  const requiredFieldDefs = fieldDefs.filter(f => !NON_REQUIRED_FIELD_KEYS.includes(f.key));
+  const companyFieldQualityList = Object.values(companyGroup)
+    .sort((a,b)=>b.count-a.count)
+    .map(g => {
+      const missingByField = companyFieldMissingCounts[g.name] || {};
+      const 항목목록 = requiredFieldDefs.map(f => {
+        const missing = missingByField[f.key] || 0;
+        const filled = g.count - missing;
+        return {
+          "항목": f.key,
+          "입력건수": filled,
+          "총건수": g.count,
+          "입력비율": g.count > 0 ? parseFloat((filled / g.count * 100).toFixed(1)) : 0
+        };
+      });
+      return { "업체": g.name, "총건수": g.count, "최근등록일": g.lastRegDate, "항목목록": 항목목록 };
+    });
+
   // region 리스트 빌드
   const regionList = Object.values(regionGroup).map(g => ({
     "시도명": g.name,
@@ -2197,27 +2291,14 @@ function processDashboardData(startDate, endDate, regionFilter, companyFilter) {
       "건수": count
     };
   });
-  
+  rateHistogramList.push({ "구간": "미입력", "건수": nullRateCount });
+
   // data_quality 데이터 빌드
-  const rateMissingByCompany = [];
   const transactedCompanies = new Set();
-  
   Object.keys(companyGroup).forEach(name => {
     transactedCompanies.add(name);
-    const cg = companyGroup[name];
-    const totalCount = cg.count;
-    const missingCount = totalCount - cg.rateCount;
-    if (missingCount > 0) {
-      rateMissingByCompany.push({
-        "업체": name,
-        "지급률미기재건수": missingCount,
-        "총건수": totalCount,
-        "미기재비율": parseFloat((missingCount / totalCount * 100).toFixed(1))
-      });
-    }
   });
-  rateMissingByCompany.sort((a,b)=>b.지급률미기재건수 - a.지급률미기재건수);
-  
+
   // 미거래 등록업체 목록
   const inactiveCompanies = [];
   allRegisteredCompanies.forEach(c => {
@@ -2225,7 +2306,25 @@ function processDashboardData(startDate, endDate, regionFilter, companyFilter) {
       inactiveCompanies.push(c);
     }
   });
-  
+
+  // 기준일(현재 조회 범위 내 데이터 상 최신 등록일자) 산출
+  const companyGroupValues = Object.values(companyGroup);
+  const referenceDateStr = companyGroupValues.reduce((max, g) => g.lastRegDate > max ? g.lastRegDate : max, companyGroupValues[0] ? companyGroupValues[0].lastRegDate : startDateStr);
+  const referenceDateObj = new Date(referenceDateStr + 'T00:00:00');
+
+  // 최근 1개월(30일) 이상 미등록 업체: 거래 이력은 있으나 최근 등록일이 기준일 대비 30일 이상 경과
+  const recentlyInactiveCompanies = companyGroupValues.map(g => {
+    const lastDateObj = new Date(g.lastRegDate + 'T00:00:00');
+    const diffDays = Math.round((referenceDateObj - lastDateObj) / 86400000);
+    return { "업체": g.name, "시도명": g.region, "최근등록일": g.lastRegDate, "경과일수": diffDays };
+  }).filter(d => d.경과일수 >= 30).sort((a,b)=>b.경과일수 - a.경과일수);
+
+  // 미거래 등록업체 + 최근 1개월 이상 미등록 업체 등록현황을 한 번에 보여주기 위한 통합 목록
+  const companyRegistrationIssues = [
+    ...inactiveCompanies.map(c => ({ "업체": c, "시도명": companyRegionMap[c] || '-', "상태": "거래가격 미등록", "최근등록일": '-', "경과일수": '-' })),
+    ...recentlyInactiveCompanies.map(d => ({ "업체": d.업체, "시도명": d.시도명, "상태": "최근 1개월 이상 미등록", "최근등록일": d.최근등록일, "경과일수": d.경과일수 }))
+  ];
+
   // DATA 덮어쓰기 객체 조립
   DATA = {
     kpi: {
@@ -2270,8 +2369,12 @@ function processDashboardData(startDate, endDate, regionFilter, companyFilter) {
       "이상치목록": rawDataQualityAnomalyList,
       "지급률결측_전체건수": nullRateCount,
       "지급률결측_비율": parseFloat((nullRateCount / validRows.length * 100).toFixed(1)),
-      "지급률미기재업체목록": rateMissingByCompany,
-      "미참여등록업체": inactiveCompanies
+      "업체별항목입력현황": companyFieldQualityList,
+      "미참여등록업체": inactiveCompanies,
+      "총등록업체수": allRegisteredCompanies.size,
+      "기준일": referenceDateStr,
+      "최근미등록업체목록": recentlyInactiveCompanies,
+      "업체등록현황": companyRegistrationIssues
     }
   };
   localStorage.setItem('dashboard_compiled_data', JSON.stringify(DATA));
@@ -2280,6 +2383,195 @@ function processDashboardData(startDate, endDate, regionFilter, companyFilter) {
   localStorage.setItem('price_excel_loaded', 'true');
   localStorage.setItem('company_excel_loaded', 'true');
   return true;
+}
+
+// ================= 업체용 통계(종합현황) 집계 =================
+// 관리자 화면(DATA)과 완전히 분리된, 단일 업체 전용 집계 함수.
+// 상단 필터바(지역/업체/기간)의 영향을 받지 않고 항상 전체 원본 데이터 중 해당 업체의 거래만 집계한다.
+// (업체는 자신의 거래만 볼 수 있어야 하므로, 다른 업체가 섞여 노출될 위험이 있는 공용 DATA를 재사용하지 않는다)
+function computeBizStats(companyName, startDate, endDate){
+  const parseNum = val => {
+    if (val === null || val === undefined || val === '') return 0;
+    if (typeof val === 'number') return val;
+    return parseFloat(String(val).replace(/,/g, '')) || 0;
+  };
+  const isBlank = v => v === null || v === undefined || v === '';
+
+  const rows = [];
+  let globalMaxRegDate = null;
+  for (let i = 3; i < excelPriceRows.length; i++) {
+    const r = excelPriceRows[i];
+    if (!r || r.length < 2) continue;
+    const company = r[0];
+    const dateStr = r[1];
+    if (!company || !dateStr) continue;
+
+    let regDate = dateStr;
+    if (r[16]) {
+      const m = String(r[16]).match(/^(\d{4}-\d{2}-\d{2})/);
+      if (m) regDate = m[1];
+    }
+    if (!globalMaxRegDate || regDate > globalMaxRegDate) globalMaxRegDate = regDate;
+
+    if (company !== companyName) continue;
+    if (startDate && regDate < startDate) continue;
+    if (endDate && regDate > endDate) continue;
+
+    const headCount = parseNum(r[2]);
+    const liveWeight = parseNum(r[3]);
+    const totalAmount = parseNum(r[4]);
+    const paymentRate = (r[5] !== null && r[5] !== undefined && r[5] !== '') ? parseFloat(r[5]) : null;
+    const carcassHead = parseNum(r[6]);
+    const carcassWeight = parseNum(r[7]);
+    const femaleHead = parseNum(r[8]);
+    const castratedHead = parseNum(r[10]);
+    const maleHead = parseNum(r[12]);
+    const unitPrice = liveWeight > 0 ? totalAmount / liveWeight : 0;
+
+    rows.push({ date: dateStr, regDate, headCount, liveWeight, totalAmount, paymentRate, carcassHead, carcassWeight, femaleHead, castratedHead, maleHead, unitPrice, rawRow: r });
+  }
+
+  if (rows.length === 0) return null;
+
+  rows.sort((a,b) => a.date < b.date ? -1 : a.date > b.date ? 1 : 0);
+
+  let totalAmount=0, totalHead=0, totalLive=0, totalCarcass=0, unitPriceWeighted=0;
+  let rateSum=0, rateCount=0;
+  let femaleHeadSum=0, castratedHeadSum=0, maleHeadSum=0;
+  const monthlyGroup = {};
+  const weeklyGroup = {};
+  const dailyGroup = {};
+
+  rows.forEach(r => {
+    totalAmount += r.totalAmount;
+    totalHead += r.headCount;
+    totalLive += r.liveWeight;
+    totalCarcass += r.carcassWeight;
+    unitPriceWeighted += r.unitPrice * r.liveWeight;
+    if (r.paymentRate !== null) { rateSum += r.paymentRate; rateCount++; }
+    femaleHeadSum += r.femaleHead; castratedHeadSum += r.castratedHead; maleHeadSum += r.maleHead;
+
+    const ym = r.date.substring(0,7);
+    if (!monthlyGroup[ym]) monthlyGroup[ym] = { ym, count:0, head:0, live:0, amount:0, carcass:0, rateSum:0, rateCount:0, priceWeighted:0 };
+    const g = monthlyGroup[ym];
+    g.count++; g.head += r.headCount; g.live += r.liveWeight; g.amount += r.totalAmount; g.carcass += r.carcassWeight;
+    g.priceWeighted += r.unitPrice * r.liveWeight;
+    if (r.paymentRate !== null) { g.rateSum += r.paymentRate; g.rateCount++; }
+
+    const sunStr = getSundayDateString(r.date);
+    if (!weeklyGroup[sunStr]) weeklyGroup[sunStr] = { week: sunStr, count:0, head:0, live:0, amount:0, carcass:0, rateSum:0, rateCount:0 };
+    const wg = weeklyGroup[sunStr];
+    wg.count++; wg.head += r.headCount; wg.live += r.liveWeight; wg.amount += r.totalAmount; wg.carcass += r.carcassWeight;
+    if (r.paymentRate !== null) { wg.rateSum += r.paymentRate; wg.rateCount++; }
+
+    if (!dailyGroup[r.date]) dailyGroup[r.date] = { day: r.date, count:0, head:0, live:0, amount:0, carcass:0, rateSum:0, rateCount:0 };
+    const dg = dailyGroup[r.date];
+    dg.count++; dg.head += r.headCount; dg.live += r.liveWeight; dg.amount += r.totalAmount; dg.carcass += r.carcassWeight;
+    if (r.paymentRate !== null) { dg.rateSum += r.paymentRate; dg.rateCount++; }
+  });
+
+  const monthlyList = Object.keys(monthlyGroup).sort().map(ym => {
+    const g = monthlyGroup[ym];
+    return {
+      연월: ym,
+      거래건수: g.count,
+      총두수: g.head,
+      총거래금액: g.amount,
+      평균kg당가격: g.live > 0 ? Math.round(g.priceWeighted / g.live) : 0,
+      평균도체율: g.live > 0 ? parseFloat((g.carcass / g.live * 100).toFixed(2)) : 0,
+      평균지급률: g.rateCount > 0 ? parseFloat((g.rateSum / g.rateCount).toFixed(2)) : null
+    };
+  });
+
+  const weeklyList = Object.values(weeklyGroup).map(g => ({
+    주: g.week,
+    거래건수: g.count,
+    총두수: g.head,
+    총거래금액: g.amount,
+    평균단가: g.live > 0 ? Math.round(g.amount / g.live) : 0,
+    평균도체율: g.live > 0 ? parseFloat((g.carcass / g.live * 100).toFixed(2)) : 0,
+    평균지급률: g.rateCount > 0 ? parseFloat((g.rateSum / g.rateCount).toFixed(2)) : null
+  })).sort((a,b) => a.주.localeCompare(b.주));
+
+  const dailyList = Object.values(dailyGroup).map(g => ({
+    일자: g.day,
+    거래건수: g.count,
+    총두수: g.head,
+    총거래금액: g.amount,
+    평균kg당가격: g.live > 0 ? Math.round(g.amount / g.live) : 0,
+    평균도체율: g.live > 0 ? parseFloat((g.carcass / g.live * 100).toFixed(2)) : 0,
+    평균지급률: g.rateCount > 0 ? parseFloat((g.rateSum / g.rateCount).toFixed(2)) : null
+  })).sort((a,b) => a.일자.localeCompare(b.일자));
+
+  const rateBins = [
+    { label:"65~70%", min:65, max:70 }, { label:"70~72%", min:70, max:72 }, { label:"72~74%", min:72, max:74 },
+    { label:"74~75%", min:74, max:75 }, { label:"75~76%", min:75, max:76 }, { label:"76~77%", min:76, max:77 },
+    { label:"77~78%", min:77, max:78 }, { label:"78~79%", min:78, max:79 }, { label:"79~80%", min:79, max:80 },
+    { label:"80~81%", min:80, max:81 }
+  ];
+  const rateHistogram = rateBins.map(bin => ({
+    구간: bin.label,
+    건수: rows.filter(r => r.paymentRate !== null && r.paymentRate >= bin.min && r.paymentRate < bin.max).length
+  }));
+  const nullRateCount = rows.filter(r => r.paymentRate === null).length;
+  rateHistogram.push({ 구간:'미입력', 건수: nullRateCount });
+
+  // 필수 입력 항목(성별 상세 두수·도체중 제외)의 자사 기준 입력 현황
+  const bizFieldDefs = [
+    { key:'두수(생돈매입)', idx:2 }, { key:'생체중계(kg)', idx:3 }, { key:'총거래금액(원)', idx:4 },
+    { key:'지급률(%)', idx:5 }, { key:'도체두수(계)', idx:6 }, { key:'도체중(계,kg)', idx:7 },
+    { key:'적용단가 유형', idx:14 }, { key:'적용단가(원/kg)', idx:15 }
+  ];
+  const fieldStatus = bizFieldDefs.map(f => {
+    const missing = rows.filter(r => isBlank(r.rawRow[f.idx])).length;
+    const filled = rows.length - missing;
+    return { 항목: f.key, 입력건수: filled, 총건수: rows.length, 입력비율: rows.length > 0 ? parseFloat((filled / rows.length * 100).toFixed(1)) : 0 };
+  });
+
+  const lastRegDate = rows.reduce((max,r) => r.regDate > max ? r.regDate : max, rows[0].regDate);
+  const refDate = globalMaxRegDate || lastRegDate;
+  const daysSinceLastReg = Math.round((new Date(refDate + 'T00:00:00') - new Date(lastRegDate + 'T00:00:00')) / 86400000);
+
+  const anomalies = rows.filter(r => r.unitPrice > 0 && (r.unitPrice < 2500 || r.unitPrice > 9000)).map(r => ({
+    조사일자: r.date, 두수: r.headCount, 생체중: r.liveWeight, 총거래금액: r.totalAmount, kg당가격: Math.round(r.unitPrice)
+  }));
+
+  const detail = [...rows].sort((a,b) => a.date < b.date ? 1 : -1).map(r => ({
+    조사일자: r.date, 두수: r.headCount, 생체중: r.liveWeight, 총거래금액: r.totalAmount,
+    kg당가격: Math.round(r.unitPrice), 지급률: r.paymentRate, 도체두수: r.carcassHead, 도체중: r.carcassWeight, 등록일자: r.regDate
+  }));
+
+  let region = '';
+  const compHeaders = excelCompanyRows[0] || [];
+  const compNameIdx = compHeaders.indexOf('업체명');
+  const compRegionIdx = compHeaders.indexOf('시도명');
+  for (let i=1; i<excelCompanyRows.length; i++) {
+    if (excelCompanyRows[i][compNameIdx] === companyName) { region = excelCompanyRows[i][compRegionIdx] || ''; break; }
+  }
+
+  return {
+    companyName, region,
+    총거래건수: rows.length,
+    총거래금액: totalAmount,
+    총두수: totalHead,
+    평균kg당가격: totalLive > 0 ? Math.round(unitPriceWeighted / totalLive) : 0,
+    평균도체율: totalLive > 0 ? parseFloat((totalCarcass / totalLive * 100).toFixed(2)) : 0,
+    평균지급률: rateCount > 0 ? parseFloat((rateSum / rateCount).toFixed(2)) : null,
+    지급률기재건수: rateCount,
+    gender: { 암: femaleHeadSum, 거세: castratedHeadSum, 수: maleHeadSum },
+    monthly: monthlyList,
+    weekly: weeklyList,
+    daily: dailyList,
+    rate_histogram: rateHistogram,
+    field_status: fieldStatus,
+    last_reg_date: lastRegDate,
+    reference_date: refDate,
+    days_since_last_reg: daysSinceLastReg,
+    anomalies,
+    detail,
+    first_date: rows[0].date,
+    last_date: rows[rows.length-1].date
+  };
 }
 
 // 대시보드 리액티브 리렌더링
@@ -2469,15 +2761,16 @@ const overviewCharts = {}; // canvas id -> Chart 인스턴스
 function periodToggleHtml(){
   return `
     <div class="period-toggle">
-      <button type="button" class="period-toggle-btn ${overviewGranularity==='일'?'active':''}" onclick="setOverviewGranularity('일')">일</button>
-      <button type="button" class="period-toggle-btn ${overviewGranularity==='주'?'active':''}" onclick="setOverviewGranularity('주')">주</button>
       <button type="button" class="period-toggle-btn ${overviewGranularity==='월'?'active':''}" onclick="setOverviewGranularity('월')">월</button>
+      <button type="button" class="period-toggle-btn ${overviewGranularity==='주'?'active':''}" onclick="setOverviewGranularity('주')">주</button>
+      <button type="button" class="period-toggle-btn ${overviewGranularity==='일'?'active':''}" onclick="setOverviewGranularity('일')">일</button>
     </div>
   `;
 }
 
-function downloadButtonHtml(){
-  return `<button type="button" class="download-btn" onclick="downloadOverviewTable()" title="현재 표를 엑셀 파일로 다운로드">
+function downloadButtonHtml(fnName){
+  fnName = fnName || 'downloadOverviewTable';
+  return `<button type="button" class="download-btn" onclick="${fnName}()" title="현재 표를 엑셀 파일로 다운로드">
     <svg viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4-4m4 4l4-4"/><path d="M4 17v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>
     <span>엑셀 다운로드</span>
   </button>`;
@@ -2517,7 +2810,7 @@ function fitScrollWidth(canvasId, innerId, count, gran){
 
 function setOverviewGranularity(g){
   overviewGranularity = g;
-  document.querySelectorAll('.period-toggle-btn').forEach(btn => {
+  document.querySelectorAll('#p1 .period-toggle-btn').forEach(btn => {
     btn.classList.toggle('active', btn.textContent === g);
   });
   renderOverviewTrendChart();
@@ -2677,19 +2970,13 @@ function renderP3(){
   document.getElementById('p3').innerHTML = `
   <div class="grid1">
     <div class="card">
-      ${cardHead('won','업체별 거래금액 순위 (전체 26개사)')}
+      ${cardHead('won','업체별 거래금액 및 평균 kg당가격 (전체 26개사, 거래금액순)')}
       <div class="chart-wrap" style="height:520px;"><canvas id="c_comp_amount"></canvas></div>
     </div>
   </div>
   <div class="grid1">
     <div class="card">
-      ${cardHead('scale','업체별 평균 kg당가격 비교')}
-      <div class="chart-wrap" style="height:520px;"><canvas id="c_comp_price"></canvas></div>
-    </div>
-  </div>
-  <div class="grid1">
-    <div class="card">
-      ${cardHead('doc','업체별 상세 통계')}
+      ${cardHead('doc','업체별 상세 통계', downloadButtonHtml('downloadCompanyDetailTable'))}
       <div class="table-scroll" style="max-height:520px;"><table>
         <thead><tr><th>순위</th><th>업체명</th><th>시도</th><th>거래건수</th><th>총두수</th><th>거래금액(억원)</th><th>평균단가(원/kg)</th><th>단가변동성(σ)</th></tr></thead>
         <tbody>${sorted.map((d,i)=>`<tr>
@@ -2708,35 +2995,72 @@ function renderP3(){
   </div>`;
 
   new Chart(document.getElementById('c_comp_amount'), {
-    type:'bar',
-    data:{ labels: sorted.map(d=>truncLabel(d.업체)), datasets:[{label:'거래금액(억원)', data:sorted.map(d=>+(d.총거래금액/1e8).toFixed(1)), backgroundColor:CH.navy, borderRadius:3, maxBarThickness:32}] },
-    options:{indexAxis:'y', responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{callbacks:{title:items=>sorted[items[0].dataIndex].업체}}} }
+    data:{ labels: sorted.map(d=>truncLabel(d.업체)),
+      datasets:[
+        {type:'bar', label:'거래금액(억원)', data:sorted.map(d=>+(d.총거래금액/1e8).toFixed(1)), backgroundColor:CH.navy, borderRadius:3, maxBarThickness:32, xAxisID:'x', order:2},
+        {type:'line', label:'평균단가(원/kg)', data:sorted.map(d=>d.평균kg당가격), borderColor:CH.accent, backgroundColor:CH.accent, xAxisID:'x1', order:1, borderWidth:2.5, pointRadius:3, tension:.2}
+      ]},
+    options:{indexAxis:'y', responsive:true, maintainAspectRatio:false,
+      scales:{ x:{ position:'bottom', title:{display:true,text:'억원'} }, x1:{ position:'top', grid:{drawOnChartArea:false}, title:{display:true,text:'원/kg'} } },
+      plugins:{legend:{position:'bottom'}, tooltip:{callbacks:{title:items=>sorted[items[0].dataIndex].업체}}} }
   });
+}
 
-  const byPrice = [...DATA.company].sort((a,b)=>b.평균kg당가격-a.평균kg당가격);
-  new Chart(document.getElementById('c_comp_price'), {
-    type:'bar',
-    data:{ labels: byPrice.map(d=>truncLabel(d.업체)), datasets:[{label:'평균단가(원/kg)', data:byPrice.map(d=>d.평균kg당가격), backgroundColor:CH.blue, borderRadius:3, maxBarThickness:32}] },
-    options:{indexAxis:'y', responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{callbacks:{title:items=>byPrice[items[0].dataIndex].업체}}} }
-  });
+// "업체별 상세 통계" 표를 화면에 보이는 그대로(거래금액 순 정렬) 엑셀로 내려받는다.
+function downloadCompanyDetailTable(){
+  if (typeof XLSX === 'undefined') {
+    alert('엑셀 다운로드 기능을 사용할 수 없습니다 (xlsx 라이브러리 로드 실패).');
+    return;
+  }
+  const sorted = [...DATA.company].sort((a,b)=>b.총거래금액-a.총거래금액);
+  if (!sorted.length) {
+    alert('다운로드할 데이터가 없습니다.');
+    return;
+  }
+  const rows = sorted.map((d, i) => ({
+    '순위': i + 1,
+    '업체명': d.업체,
+    '시도': d.시도명 || '-',
+    '거래건수': d.거래건수,
+    '총두수': d.총두수,
+    '거래금액(억원)': parseFloat(eok(d.총거래금액)),
+    '평균단가(원/kg)': d.평균kg당가격,
+    '단가변동성(σ)': d.가격변동성
+  }));
+  const ws = XLSX.utils.json_to_sheet(rows);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, '업체별상세통계');
+  const today = new Date().toISOString().slice(0, 10);
+  XLSX.writeFile(wb, `돼지거래_업체별상세통계_${today}.xlsx`);
+}
+
+function downloadRegionDetailTable(){
+  if (typeof XLSX === 'undefined') { alert('엑셀 다운로드 기능을 사용할 수 없습니다 (xlsx 라이브러리 로드 실패).'); return; }
+  const sorted = [...DATA.region].sort((a,b)=>b.총거래금액-a.총거래금액);
+  if (!sorted.length) { alert('다운로드할 데이터가 없습니다.'); return; }
+  const rows = sorted.map((d, i) => ({
+    '순위': i + 1, '시도명': d.시도명, '참여업체수': d.업체수, '거래건수': d.거래건수, '총두수': d.총두수,
+    '거래금액(억원)': parseFloat(eok(d.총거래금액)), '평균kg당가격(원)': d.평균kg당가격
+  }));
+  const ws = XLSX.utils.json_to_sheet(rows);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, '시도별상세통계');
+  const today = new Date().toISOString().slice(0, 10);
+  XLSX.writeFile(wb, `돼지거래_시도별상세통계_${today}.xlsx`);
 }
 
 // ================= P4 지역별 현황 =================
 function renderP4(){
   const sorted = [...DATA.region].sort((a,b)=>b.총거래금액-a.총거래금액);
   document.getElementById('p4').innerHTML = `
-  <div class="grid2">
+  <div class="grid1">
     <div class="card">
-      ${cardHead('won','시도별 거래금액')}
+      ${cardHead('won','시도별 거래금액 및 평균 kg당가격 (거래금액순)')}
       <div class="chart-wrap" style="height:360px;"><canvas id="c_reg_amount"></canvas></div>
-    </div>
-    <div class="card">
-      ${cardHead('scale','시도별 평균 kg당가격')}
-      <div class="chart-wrap" style="height:360px;"><canvas id="c_reg_price"></canvas></div>
     </div>
   </div>
   <div class="card">
-    ${cardHead('doc','시도별 상세 통계')}
+    ${cardHead('doc','시도별 상세 통계', downloadButtonHtml('downloadRegionDetailTable'))}
     <div class="table-scroll"><table>
       <thead><tr><th>순위</th><th>시도명</th><th>참여업체수</th><th>거래건수</th><th>총두수</th><th>거래금액(억원)</th><th>평균kg당가격(원)</th></tr></thead>
       <tbody>${sorted.map((d,i)=>`<tr>
@@ -2748,21 +3072,47 @@ function renderP4(){
   </div>`;
 
   new Chart(document.getElementById('c_reg_amount'), {
-    type:'bar',
-    data:{ labels: sorted.map(d=>d.시도명), datasets:[{label:'거래금액(억원)', data:sorted.map(d=>+(d.총거래금액/1e8).toFixed(1)), backgroundColor:CH.navy2, borderRadius:4, maxBarThickness:60}] },
-    options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}} }
-  });
-  const byPrice = [...DATA.region].sort((a,b)=>b.평균kg당가격-a.평균kg당가격);
-  new Chart(document.getElementById('c_reg_price'), {
-    type:'bar',
-    data:{ labels: byPrice.map(d=>d.시도명), datasets:[{label:'평균단가(원/kg)', data:byPrice.map(d=>d.평균kg당가격), backgroundColor:CH.accent, borderRadius:4, maxBarThickness:60}] },
-    options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}} }
+    data:{ labels: sorted.map(d=>d.시도명),
+      datasets:[
+        {type:'bar', label:'거래금액(억원)', data:sorted.map(d=>+(d.총거래금액/1e8).toFixed(1)), backgroundColor:CH.navy2, borderRadius:4, maxBarThickness:60, yAxisID:'y', order:2},
+        {type:'line', label:'평균 kg당가격(원)', data:sorted.map(d=>d.평균kg당가격), borderColor:CH.accent, backgroundColor:CH.accent, yAxisID:'y1', order:1, borderWidth:2.5, pointRadius:4, tension:.2}
+      ]},
+    options:{responsive:true, maintainAspectRatio:false,
+      scales:{ y:{position:'left', title:{display:true,text:'억원'}}, y1:{position:'right', grid:{drawOnChartArea:false}, title:{display:true,text:'원/kg'}} },
+      plugins:{legend:{position:'bottom'}} }
   });
 }
 
 // ================= P5 성별·도체 분석 =================
+let yieldGranularity = '월';
+function yieldPeriodToggleHtml(){
+  return `
+    <div class="period-toggle">
+      <button type="button" class="period-toggle-btn ${yieldGranularity==='월'?'active':''}" onclick="setYieldGranularity('월')">월</button>
+      <button type="button" class="period-toggle-btn ${yieldGranularity==='주'?'active':''}" onclick="setYieldGranularity('주')">주</button>
+      <button type="button" class="period-toggle-btn ${yieldGranularity==='일'?'active':''}" onclick="setYieldGranularity('일')">일</button>
+    </div>
+  `;
+}
+function setYieldGranularity(g){
+  yieldGranularity = g;
+  renderP5();
+}
+
+const p5Charts = {}; // canvas id -> Chart 인스턴스 (토글로 renderP5()가 반복 호출될 때 누적 생성되지 않도록 정리)
+function destroyP5Chart(canvasId){
+  const inst = p5Charts[canvasId];
+  if (inst) {
+    try { inst.destroy(); } catch(e) {}
+    activeCharts = activeCharts.filter(c => c !== inst);
+    delete p5Charts[canvasId];
+  }
+}
+
 function renderP5(){
   const g = DATA.gender;
+  const yieldSrc = (yieldGranularity === '일' ? DATA.daily : yieldGranularity === '주' ? DATA.weekly_price : DATA.monthly_yield) || [];
+  const yieldLabelKey = yieldGranularity === '일' ? '일자' : yieldGranularity === '주' ? '주' : '연월';
   document.getElementById('p5').innerHTML = `
   <div class="kpi-row" style="grid-template-columns:repeat(3,1fr);">
     ${kpiCard('red','pig','암퇘지 두수', fmt(g.두수.암)+' 두 ('+(g.두수.암/(g.두수.암+g.두수.거세+g.두수.수)*100).toFixed(1)+'%)')}
@@ -2780,31 +3130,85 @@ function renderP5(){
     </div>
   </div>
   <div class="card">
-    ${cardHead('doc','월별 평균 도체율(도체중/생체중) 추이')}
-    <div class="chart-wrap" style="height:280px;"><canvas id="c_yield_trend"></canvas></div>
+    ${cardHead('doc','월별 평균 도체율(도체중/생체중) 추이', yieldPeriodToggleHtml())}
+    <div class="chart-wrap chart-wrap-scroll" style="height:280px;"><div class="chart-scroll-inner" id="yieldTrendInner"><canvas id="c_yield_trend"></canvas></div></div>
     <div class="note">· 도체율은 도축된 돼지의 생체중 대비 도체중 비율로, 사양관리·계절 등에 따라 변동합니다. 조사기간 중 평균 ${DATA.kpi.평균도체율}%로 국내 평균적 범위(약 75~78%) 내에서 안정적으로 유지되고 있습니다.<br>
     · 암퇘지와 거세돈의 두당 평균 도체중은 각 ${g.두당평균도체중.암}kg, ${g.두당평균도체중.거세}kg으로 유사한 수준이며, 수퇘지는 ${g.두당평균도체중.수}kg으로 다소 낮게 나타났습니다(거래건수 소수(811두)로 표본 편차 가능성 있음).</div>
   </div>`;
 
-  new Chart(document.getElementById('c_g_head'), {
+  destroyP5Chart('c_g_head');
+  p5Charts['c_g_head'] = new Chart(document.getElementById('c_g_head'), {
     type:'pie',
     data:{ labels:['암','거세','수'], datasets:[{data:[g.두수.암,g.두수.거세,g.두수.수], backgroundColor:[CH.red, CH.navy2, CH.accent]}] },
     options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'right'}}}
   });
-  new Chart(document.getElementById('c_g_weight'), {
+  destroyP5Chart('c_g_weight');
+  p5Charts['c_g_weight'] = new Chart(document.getElementById('c_g_weight'), {
     type:'bar',
     data:{ labels:['암','거세','수'], datasets:[{label:'두당 평균 도체중(kg)', data:[g.두당평균도체중.암,g.두당평균도체중.거세,g.두당평균도체중.수], backgroundColor:[CH.red, CH.navy2, CH.accent], borderRadius:6, maxBarThickness:80}] },
     options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{y:{min:60}} }
   });
-  new Chart(document.getElementById('c_yield_trend'), {
+  fitScrollWidth('c_yield_trend', 'yieldTrendInner', yieldSrc.length, yieldGranularity);
+  const yieldXTicks = yieldGranularity === '일' ? {
+    color: (ctx) => {
+      const item = yieldSrc[ctx.index];
+      if (!item) return '#6B7A88';
+      const dow = new Date(item.일자 + 'T00:00:00').getDay();
+      if (dow === 0) return CH.red;
+      if (dow === 6) return CH.blue;
+      return '#6B7A88';
+    }
+  } : {};
+  destroyP5Chart('c_yield_trend');
+  p5Charts['c_yield_trend'] = new Chart(document.getElementById('c_yield_trend'), {
     type:'line',
-    data:{ labels: DATA.monthly_yield.map(d=>d.연월), datasets:[{label:'평균 도체율(%)', data:DATA.monthly_yield.map(d=>d.도체율), borderColor:CH.green, backgroundColor:'rgba(46,139,87,.12)', tension:.3, fill:true, pointRadius:4}] },
-    options:{responsive:true, maintainAspectRatio:false, scales:{y:{min:76,max:80}}, plugins:{legend:{display:false}} }
+    data:{ labels: yieldSrc.map(d => yieldGranularity === '주' ? formatWeekLabel(d[yieldLabelKey]) : d[yieldLabelKey]), datasets:[{label:'평균 도체율(%)', data:yieldSrc.map(d=>d.도체율), borderColor:CH.green, backgroundColor:'rgba(46,139,87,.12)', tension:.3, fill:true, pointRadius:4}] },
+    options:{responsive:true, maintainAspectRatio:false, scales:{ x:{ ticks: yieldXTicks } }, plugins:{legend:{display:false}} }
   });
 }
 
+function downloadCompanyRateTable(){
+  if (typeof XLSX === 'undefined') { alert('엑셀 다운로드 기능을 사용할 수 없습니다 (xlsx 라이브러리 로드 실패).'); return; }
+  if (!DATA.company_rate.length) { alert('다운로드할 데이터가 없습니다.'); return; }
+  const rows = DATA.company_rate.map(d => ({
+    '업체명': d.업체, '평균지급률(%)': d.평균, '최저': d.min, '최고': d.max, '기재건수': d.건수
+  }));
+  const ws = XLSX.utils.json_to_sheet(rows);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, '업체별지급률통계');
+  const today = new Date().toISOString().slice(0, 10);
+  XLSX.writeFile(wb, `돼지거래_업체별지급률통계_${today}.xlsx`);
+}
+
 // ================= P6 지급률 분석 =================
+let rateGranularity = '월';
+function ratePeriodToggleHtml(){
+  return `
+    <div class="period-toggle">
+      <button type="button" class="period-toggle-btn ${rateGranularity==='월'?'active':''}" onclick="setRateGranularity('월')">월</button>
+      <button type="button" class="period-toggle-btn ${rateGranularity==='주'?'active':''}" onclick="setRateGranularity('주')">주</button>
+      <button type="button" class="period-toggle-btn ${rateGranularity==='일'?'active':''}" onclick="setRateGranularity('일')">일</button>
+    </div>
+  `;
+}
+function setRateGranularity(g){
+  rateGranularity = g;
+  renderP6();
+}
+const p6Charts = {}; // canvas id -> Chart 인스턴스 (토글로 renderP6()가 반복 호출될 때 누적 생성되지 않도록 정리)
+function destroyP6Chart(canvasId){
+  const inst = p6Charts[canvasId];
+  if (inst) {
+    try { inst.destroy(); } catch(e) {}
+    activeCharts = activeCharts.filter(c => c !== inst);
+    delete p6Charts[canvasId];
+  }
+}
+
 function renderP6(){
+  const rateSrc = (rateGranularity === '일' ? DATA.daily : rateGranularity === '주' ? DATA.weekly_price : DATA.monthly_rate) || [];
+  const rateLabelKey = rateGranularity === '일' ? '일자' : rateGranularity === '주' ? '주' : '연월';
+  const rateValueKey = rateGranularity === '월' ? '지급률' : '평균지급률';
   document.getElementById('p6').innerHTML = `
   <div class="grid2">
     <div class="card">
@@ -2812,97 +3216,412 @@ function renderP6(){
       <div class="chart-wrap" style="height:300px;"><canvas id="c_rate_hist"></canvas></div>
     </div>
     <div class="card">
-      ${cardHead('doc','월별 평균 지급률 추이')}
-      <div class="chart-wrap" style="height:300px;"><canvas id="c_rate_month"></canvas></div>
+      ${cardHead('doc','월별 평균 지급률 추이', ratePeriodToggleHtml())}
+      <div class="chart-wrap chart-wrap-scroll" style="height:300px;"><div class="chart-scroll-inner" id="rateTrendInner"><canvas id="c_rate_month"></canvas></div></div>
     </div>
   </div>
   <div class="card">
-    ${cardHead('building','업체별 지급률 통계 (기재 업체 한정)')}
+    ${cardHead('building','업체별 지급률 통계 (기재 업체 한정)', downloadButtonHtml('downloadCompanyRateTable'))}
     <div class="table-scroll"><table>
       <thead><tr><th>업체명</th><th>평균지급률(%)</th><th>최저</th><th>최고</th><th>기재건수</th></tr></thead>
       <tbody>${DATA.company_rate.map(d=>`<tr>
         <td>${d.업체}</td><td>${d.평균}</td><td>${d.min}</td><td>${d.max}</td><td>${d.건수}</td>
       </tr>`).join('')}</tbody>
     </table></div>
-    <div class="note">· 지급률은 생체중 대비 실제 지급 적용된 비율로, 조사기간 전체 평균 ${DATA.kpi.평균지급률}%입니다. 65~70%대의 낮은 지급률 사례가 소수 확인되며, 등급·감모 등에 따른 정상 편차인지 입력오류인지 현장 확인이 권장됩니다.</div>
+    <div class="note">· 지급률은 생체중 대비 실제 지급 적용된 비율로, 조사기간 전체 평균 ${DATA.kpi.평균지급률}%입니다. 65~70%대의 낮은 지급률 사례가 소수 확인되며, 등급·감모 등에 따른 정상 편차인지 입력오류인지 현장 확인이 권장됩니다. 회색으로 표시된 '미입력'은 지급률이 기재되지 않은 건(${fmt(DATA.data_quality.지급률결측_전체건수)}건, 전체의 ${DATA.data_quality.지급률결측_비율}%)으로, 분포 구간 계산에서는 제외됩니다.</div>
   </div>`;
 
-  new Chart(document.getElementById('c_rate_hist'), {
+  destroyP6Chart('c_rate_hist');
+  p6Charts['c_rate_hist'] = new Chart(document.getElementById('c_rate_hist'), {
     type:'bar',
-    data:{ labels: DATA.rate_histogram.map(d=>d.구간), datasets:[{label:'건수', data:DATA.rate_histogram.map(d=>d.건수), backgroundColor:CH.navy2, borderRadius:4}] },
+    data:{ labels: DATA.rate_histogram.map(d=>d.구간), datasets:[{label:'건수', data:DATA.rate_histogram.map(d=>d.건수), backgroundColor:DATA.rate_histogram.map(d=>d.구간==='미입력'?CH.gray:CH.navy2), borderRadius:4}] },
     options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}} }
   });
-  new Chart(document.getElementById('c_rate_month'), {
+
+  fitScrollWidth('c_rate_month', 'rateTrendInner', rateSrc.length, rateGranularity);
+  const rateXTicks = rateGranularity === '일' ? {
+    color: (ctx) => {
+      const item = rateSrc[ctx.index];
+      if (!item) return '#6B7A88';
+      const dow = new Date(item.일자 + 'T00:00:00').getDay();
+      if (dow === 0) return CH.red;
+      if (dow === 6) return CH.blue;
+      return '#6B7A88';
+    }
+  } : {};
+  destroyP6Chart('c_rate_month');
+  p6Charts['c_rate_month'] = new Chart(document.getElementById('c_rate_month'), {
     type:'line',
-    data:{ labels: DATA.monthly_rate.map(d=>d.연월), datasets:[{label:'평균 지급률(%)', data:DATA.monthly_rate.map(d=>d.지급률), borderColor:CH.accent, backgroundColor:'rgba(242,169,0,.15)', tension:.3, fill:true, pointRadius:4}] },
-    options:{responsive:true, maintainAspectRatio:false, scales:{y:{min:74,max:78}}, plugins:{legend:{display:false}} }
+    data:{ labels: rateSrc.map(d => rateGranularity === '주' ? formatWeekLabel(d[rateLabelKey]) : d[rateLabelKey]), datasets:[{label:'평균 지급률(%)', data:rateSrc.map(d=>d[rateValueKey]), borderColor:CH.accent, backgroundColor:'rgba(242,169,0,.15)', tension:.3, fill:true, pointRadius:4, spanGaps:true}] },
+    options:{responsive:true, maintainAspectRatio:false, scales:{ x:{ ticks: rateXTicks } }, plugins:{legend:{display:false}} }
   });
 }
 
 // ================= P7 데이터 품질·이상치 =================
+function downloadCompanyFieldQualityTable(){
+  if (typeof XLSX === 'undefined') { alert('엑셀 다운로드 기능을 사용할 수 없습니다 (xlsx 라이브러리 로드 실패).'); return; }
+  const list = DATA.data_quality.업체별항목입력현황;
+  if (!list.length) { alert('다운로드할 데이터가 없습니다.'); return; }
+  const rows = list.map(c => {
+    const row = { '업체명': c.업체, '총건수': c.총건수, '최근등록일': c.최근등록일 };
+    c.항목목록.forEach(x => { row[x.항목] = `${x.입력건수}/${x.총건수}`; });
+    return row;
+  });
+  const ws = XLSX.utils.json_to_sheet(rows);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, '업체별항목입력현황');
+  const today = new Date().toISOString().slice(0, 10);
+  XLSX.writeFile(wb, `돼지거래_업체별항목입력현황_${today}.xlsx`);
+}
+
+function downloadCompanyRegistrationTable(){
+  if (typeof XLSX === 'undefined') { alert('엑셀 다운로드 기능을 사용할 수 없습니다 (xlsx 라이브러리 로드 실패).'); return; }
+  const list = DATA.data_quality.업체등록현황;
+  if (!list.length) { alert('다운로드할 데이터가 없습니다.'); return; }
+  const rows = list.map(d => ({ '업체명': d.업체, '시도명': d.시도명, '상태': d.상태, '최근등록일': d.최근등록일, '경과일수': d.경과일수 }));
+  const ws = XLSX.utils.json_to_sheet(rows);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, '업체등록현황');
+  const today = new Date().toISOString().slice(0, 10);
+  XLSX.writeFile(wb, `돼지거래_업체등록현황_${today}.xlsx`);
+}
+
 function renderP7(){
   const dq = DATA.data_quality;
+  const companyFieldNames = (dq.업체별항목입력현황[0] && dq.업체별항목입력현황[0].항목목록.map(x=>x.항목)) || [];
   document.getElementById('p7').innerHTML = `
   <div class="kpi-row">
-    ${kpiCard('red','warn','단가 이상치', dq.이상치건수+' 건')}
+    ${kpiCard('red','warn','돼지 거래가격 이상치', dq.이상치건수+' 건')}
     ${kpiCard('orange','doc','지급률 결측', fmt(dq.지급률결측_전체건수)+'건 ('+dq.지급률결측_비율+'%)')}
-    ${kpiCard('','building','지급률 미기재 업체', dq.지급률미기재업체목록.length+' 개사')}
-    ${kpiCard('','check','미거래 등록업체', dq.미참여등록업체.length+' 개사')}
+    ${kpiCard('','check','거래가격 미등록 업체', dq.미참여등록업체.length+' 개사')}
+    ${kpiCard('','building','최근 1개월 이상 미등록 업체', dq.최근미등록업체목록.length+' 개사')}
   </div>
   <div class="card">
-    ${cardHead('warn','단가 이상치 상세 (정상범위 2,500~9,000원/kg 벗어난 거래)')}
-    <table>
+    ${cardHead('warn','돼지 거래가격 정보 이상치')}
+    <table class="tbl-center">
       <thead><tr><th>업체명</th><th>조사일자</th><th>두수</th><th>생체중(kg)</th><th>총거래금액(원)</th><th>산출 kg당가격</th><th>추정 원인</th></tr></thead>
       <tbody>
         ${dq.이상치목록.map(a=>`<tr>
           <td>${a.업체}</td><td>${a.조사일자}</td><td>${fmt(a.두수)}</td><td>${fmt(a.생체중)}</td><td>${fmt(a.총거래금액)}</td>
           <td><span class="badge red">${fmt(a.kg당가격)}원</span></td>
-          <td style="text-align:left; white-space:normal;">${a.kg당가격>9000?'총거래금액 자릿수 오류 추정 (÷10 시 약 '+fmt(a.kg당가격/10)+'원/kg으로 정상 범위 진입)':'생체중계 자릿수 오류 추정 (÷10 시 두당 약 '+fmt(a.생체중/10/a.두수)+'kg으로 정상 범위 진입)'}</td>
+          <td style="white-space:normal;">${a.kg당가격>9000?'총거래금액 자릿수 오류 추정 (÷10 시 약 '+fmt(a.kg당가격/10)+'원/kg으로 정상 범위 진입)':'생체중계 자릿수 오류 추정 (÷10 시 두당 약 '+fmt(a.생체중/10/a.두수)+'kg으로 정상 범위 진입)'}</td>
         </tr>`).join('')}
       </tbody>
     </table>
-    <div class="note">· 총 ${dq.이상치건수}건의 단가 이상치가 확인되었습니다. 두 건 모두 두수 대비 생체중 또는 거래금액의 자릿수가 어긋난 <b>입력 단계 오류</b>로 추정되며, 원본 데이터 재확인 및 정정이 필요합니다. 이러한 이상치는 월별·업체별 평균단가 및 변동성 지표를 왜곡시키므로 우선 정정 대상입니다.</div>
+    <div style="margin-top:12px; padding:12px 16px; background:#FBE7E6; border-left:4px solid var(--red); border-radius:8px; font-size:15px; line-height:1.8; color:var(--text); font-weight:700;">
+    ⚠ 총 <u>${dq.이상치건수}건</u>의 단가 이상치가 확인되었습니다. 두 건 모두 두수 대비 생체중 또는 거래금액의 자릿수가 어긋난 <u>입력 단계 오류</u>로 추정되며, 원본 데이터 재확인 및 정정이 필요합니다. 이러한 이상치는 월별·업체별 평균단가 및 변동성 지표를 왜곡시키므로 <u>우선 정정 대상</u>입니다.
+    </div>
   </div>
-  <div class="grid2">
-    <div class="card">
-      ${cardHead('doc','지급률 결측 업체 현황 (상위 10개사)')}
-      <div class="table-scroll" style="max-height:320px;"><table>
-        <thead><tr><th>업체명</th><th>미기재건수</th><th>총건수</th><th>미기재비율(%)</th></tr></thead>
-        <tbody>${dq.지급률미기재업체목록.slice(0,10).map(d=>`<tr>
-          <td>${d.업체}</td><td>${d.지급률미기재건수}</td><td>${d.총건수}</td>
-          <td>${d.미기재비율>=90?`<span class="badge red">${d.미기재비율}%</span>`:d.미기재비율+'%'}</td>
-        </tr>`).join('')}</tbody>
-      </table></div>
-      <div class="note">· 지급률 항목은 전체 거래건의 ${dq.지급률결측_비율}%(${fmt(dq.지급률결측_전체건수)}건)가 미기재 상태입니다. 특히 일부 업체는 미기재 비율이 90% 이상으로, 시스템 입력 필수화 또는 업체별 입력 안내 강화가 필요해 보입니다.</div>
+  <div class="card">
+    ${cardHead('building','업체 등록현황 (거래가격 미등록 · 최근 1개월 이상 미등록)', downloadButtonHtml('downloadCompanyRegistrationTable'))}
+    <div class="table-scroll" style="max-height:360px;"><table>
+      <thead><tr><th>업체명</th><th>시도명</th><th>상태</th><th>최근등록일</th><th>경과일수</th></tr></thead>
+      <tbody>${dq.업체등록현황.map(d=>`<tr>
+        <td>${d.업체}</td><td>${d.시도명}</td>
+        <td>${d.상태==='거래가격 미등록'?`<span class="badge red">${d.상태}</span>`:`<span class="badge orange">${d.상태}</span>`}</td>
+        <td>${d.최근등록일}</td><td>${d.경과일수==='-'?'-':fmt(d.경과일수)+'일'}</td>
+      </tr>`).join('')}</tbody>
+    </table></div>
+    <div class="note" style="font-size:15px; line-height:1.9; color:var(--text);">
+    · 업체정보 기준 등록업체 <b>${dq.총등록업체수}개사</b>('돼지거래test' 테스트 계정 제외) 중 <b style="color:var(--red);">${dq.미참여등록업체.length}개사</b>는 조사기간 동안 거래가격 정보를 등록하지 않았고, <b style="color:#B87500;">${dq.최근미등록업체목록.length}개사</b>는 등록 이력은 있으나 기준일(${dq.기준일}) 대비 최근 등록일이 <b>1개월(30일) 이상</b> 경과했습니다.<br>
+    · <b>휴·폐업 여부 또는 미보고 사유 확인이 필요합니다.</b>
     </div>
-    <div class="card">
-      ${cardHead('building','미거래 등록업체 (조사기간 중 거래 실적 없음)')}
-      <ul style="padding-left:18px; line-height:2.1; font-size:13px;">
-        ${dq.미참여등록업체.map(c=>`<li>${c}</li>`).join('')}
-      </ul>
-      <div class="note">· 업체정보 기준 등록업체 31개사 중 4개사는 조사기간(2026.01~07) 동안 가격 조사 실적이 없습니다('돼지거래test' 테스트 계정 제외 시 3개사). 휴·폐업 여부 또는 미보고 사유 확인이 필요합니다.</div>
-    </div>
+  </div>
+  <div class="card">
+    ${cardHead('building','업체별 항목 입력 현황 (전체 입력항목 기준, 입력건수/총건수)', downloadButtonHtml('downloadCompanyFieldQualityTable'))}
+    <div class="table-scroll" style="max-height:520px;"><table class="tbl-compact">
+      <thead><tr><th>업체명</th><th>총건수</th><th>최근등록일</th>${companyFieldNames.map(name=>`<th>${name}</th>`).join('')}</tr></thead>
+      <tbody>${dq.업체별항목입력현황.map(c=>{
+        const daysSinceReg = Math.round((new Date(dq.기준일+'T00:00:00') - new Date(c.최근등록일+'T00:00:00')) / 86400000);
+        return `<tr>
+        <td class="ellipsis" title="${c.업체}">${c.업체}</td><td>${fmt(c.총건수)}</td>
+        <td>${daysSinceReg>20?`<span style="color:var(--red); font-weight:700;">${c.최근등록일}</span>`:c.최근등록일}</td>
+        ${c.항목목록.map(x=>`<td>${x.입력비율<70?`<span class="badge red">${fmt(x.입력건수)}/${fmt(x.총건수)}</span>`:`${fmt(x.입력건수)}/${fmt(x.총건수)}`}</td>`).join('')}
+      </tr>`;
+      }).join('')}</tbody>
+    </table></div>
   </div>`;
 }
 
+// ================= P8 업체용 종합현황 =================
+// 실제 서비스에서는 로그인한 업체 계정 정보로 결정되어야 하나, 이 프로토타입에서는 시연을 위해 고정값을 사용한다.
+const MY_COMPANY = '도드람LPC공사';
+const bizCharts = {}; // canvas id -> Chart 인스턴스
+function destroyBizChart(canvasId){
+  const inst = bizCharts[canvasId];
+  if (inst) {
+    try { inst.destroy(); } catch(e) {}
+    activeCharts = activeCharts.filter(c => c !== inst);
+    delete bizCharts[canvasId];
+  }
+}
+
+let bizGranularity = '월';
+
+function bizPeriodToggleHtml(){
+  return `
+    <div class="period-toggle">
+      <button type="button" class="period-toggle-btn ${bizGranularity==='월'?'active':''}" onclick="setBizGranularity('월')">월</button>
+      <button type="button" class="period-toggle-btn ${bizGranularity==='주'?'active':''}" onclick="setBizGranularity('주')">주</button>
+      <button type="button" class="period-toggle-btn ${bizGranularity==='일'?'active':''}" onclick="setBizGranularity('일')">일</button>
+    </div>
+  `;
+}
+
+function setBizGranularity(g){
+  bizGranularity = g;
+  renderP8();
+}
+
+function getBizSeries(biz){
+  const gran = bizGranularity;
+  const src = (gran === '일' ? biz.daily : gran === '주' ? biz.weekly : biz.monthly) || [];
+  const labelKey = gran === '일' ? '일자' : gran === '주' ? '주' : '연월';
+  const priceKey = gran === '주' ? '평균단가' : '평균kg당가격';
+  return { gran, src, labelKey, priceKey };
+}
+
+function bizLabels(src, labelKey, gran){
+  return src.map(d => gran === '주' ? formatWeekLabel(d[labelKey]) : d[labelKey]);
+}
+
+function getBizFilterDates(){
+  const startEl = document.getElementById('filterStartDate');
+  const endEl = document.getElementById('filterEndDate');
+  return { start: startEl ? startEl.value : '', end: endEl ? endEl.value : '' };
+}
+
+// 검색영역의 업체 드롭다운에서 선택된 업체를 사용한다(미선택 시 MY_COMPANY로 대체).
+// 업체별 접근 제한은 아직 구현 전이라, 지금은 선택한 업체의 통계가 그대로 표시된다.
+function getBizTargetCompany(){
+  const companySelEl = document.getElementById('filterCompany');
+  return (companySelEl && companySelEl.value) || MY_COMPANY;
+}
+
+function renderP8(){
+  const el = document.getElementById('p8');
+  const startEl = document.getElementById('filterStartDate');
+  const endEl = document.getElementById('filterEndDate');
+  const start = startEl ? startEl.value : '';
+  const end = endEl ? endEl.value : '';
+  const biz = computeBizStats(getBizTargetCompany(), start, end);
+  if (!biz) {
+    el.innerHTML = `<div class="card"><div class="note">선택하신 조회기간에 해당하는 거래 데이터가 없습니다. 조회기간을 다시 확인해 주세요.</div></div>`;
+    return;
+  }
+
+  const rateAvailable = biz.지급률기재건수 > 0;
+  const hasAnomaly = biz.anomalies.length > 0;
+  const isStale = biz.days_since_last_reg >= 30;
+
+  el.innerHTML = `
+  <div style="margin-bottom:14px; padding:10px 16px; background:#EDF5FB; border-left:4px solid var(--navy2); border-radius:8px; font-size:13px; color:var(--navy);">🔒 현재 <b>${biz.companyName}</b>의 거래 정보를 표시합니다. (검색영역에서 업체를 바꿔 조회할 수 있습니다 — 업체별 접근 제한 기능은 추후 적용 예정입니다)</div>
+  <div class="kpi-row">
+    ${kpiCard('', 'doc', '총 거래건수', fmt(biz.총거래건수)+' 건')}
+    ${kpiCard('', 'pig', '총 거래두수', fmt(biz.총두수)+' 두')}
+    ${kpiCard('orange', 'won', '총 거래금액', eok(biz.총거래금액)+' 억원')}
+    ${kpiCard('', 'scale', '평균 kg당가격', fmt(biz.평균kg당가격)+' 원/kg')}
+  </div>
+  <div class="kpi-row">
+    ${kpiCard('', 'yield', '평균 도체율', biz.평균도체율+' %')}
+    ${kpiCard(rateAvailable?'':'orange', 'rate', '평균 지급률', rateAvailable?biz.평균지급률+' %':'미입력')}
+    ${kpiCard(isStale?'orange':'green', 'calendar', '최근 등록일', biz.last_reg_date+' ('+biz.days_since_last_reg+'일 전)')}
+    ${kpiCard(hasAnomaly?'red':'green', 'warn', '단가 이상치', biz.anomalies.length+' 건')}
+  </div>
+  <div class="grid1">
+    <div class="card">
+      ${cardHead('scale','거래금액 및 평균 kg당가격 추이', bizPeriodToggleHtml())}
+      <div class="chart-wrap chart-wrap-scroll" style="height:300px;"><div class="chart-scroll-inner" id="bizTrendInner"><canvas id="c_biz_amount"></canvas></div></div>
+    </div>
+  </div>
+  <div class="grid1">
+    <div class="card">
+      ${cardHead('doc','거래건수 및 거래두수 추이', bizPeriodToggleHtml())}
+      <div class="chart-wrap chart-wrap-scroll" style="height:280px;"><div class="chart-scroll-inner" id="bizCountInner"><canvas id="c_biz_count"></canvas></div></div>
+    </div>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      ${cardHead('pig','성별 두수 비중')}
+      ${(biz.gender.암 + biz.gender.거세 + biz.gender.수) > 0
+        ? `<div class="chart-wrap" style="height:280px;"><canvas id="c_biz_gender"></canvas></div>`
+        : `<div class="note">· 성별(암/거세/수) 두수가 입력된 거래 건이 없어 비중을 표시할 수 없습니다.</div>`}
+    </div>
+    <div class="card">
+      ${cardHead('yield','월별 평균 도체율 추이', bizPeriodToggleHtml())}
+      <div class="chart-wrap chart-wrap-scroll" style="height:280px;"><div class="chart-scroll-inner" id="bizYieldInner"><canvas id="c_biz_yield"></canvas></div></div>
+    </div>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      ${cardHead('rate','월별 평균 지급률 추이', bizPeriodToggleHtml())}
+      ${rateAvailable
+        ? `<div class="chart-wrap chart-wrap-scroll" style="height:280px;"><div class="chart-scroll-inner" id="bizRateInner"><canvas id="c_biz_rate"></canvas></div></div>`
+        : `<div class="note">· 지급률이 입력된 거래 건이 없어 추이를 표시할 수 없습니다. 지급률 입력을 부탁드립니다.</div>`}
+    </div>
+    <div class="card">
+      ${cardHead('rate','지급률 구간별 분포')}
+      <div class="chart-wrap" style="height:280px;"><canvas id="c_biz_hist"></canvas></div>
+    </div>
+  </div>
+  <div class="card">
+    ${cardHead('warn','돼지 거래가격 정보 이상치')}
+    ${hasAnomaly ? `
+    <table class="tbl-center">
+      <thead><tr><th>조사일자</th><th>두수</th><th>생체중(kg)</th><th>총거래금액(원)</th><th>산출 kg당가격</th></tr></thead>
+      <tbody>${biz.anomalies.map(a=>`<tr>
+        <td>${a.조사일자}</td><td>${fmt(a.두수)}</td><td>${fmt(a.생체중)}</td><td>${fmt(a.총거래금액)}</td>
+        <td><span class="badge red">${fmt(a.kg당가격)}원</span></td>
+      </tr>`).join('')}</tbody>
+    </table>
+    <div style="margin-top:12px; padding:12px 16px; background:#FBE7E6; border-left:4px solid var(--red); border-radius:8px; font-size:15px; line-height:1.8; color:var(--text); font-weight:700;">
+    ⚠ 총 <u>${biz.anomalies.length}건</u>의 단가 이상치가 확인되었습니다. 정상범위(2,500~9,000원/kg)를 벗어난 거래로, 두수·생체중·거래금액 입력값을 다시 확인해 주세요.
+    </div>` : `<div class="note">· 정상범위(2,500~9,000원/kg)를 벗어난 거래가 없습니다. ✓</div>`}
+  </div>
+  <div class="card">
+    ${cardHead('building','업체별 항목 입력 현황 (전체 입력항목 기준, 입력건수/총건수)')}
+    <div class="table-scroll"><table>
+      <thead><tr><th>업체명</th><th>총건수</th><th>최근등록일</th>${biz.field_status.map(f=>`<th>${f.항목}</th>`).join('')}</tr></thead>
+      <tbody><tr>
+        <td>${biz.companyName}</td><td>${fmt(biz.총거래건수)}</td>
+        <td>${biz.days_since_last_reg>20?`<span style="color:var(--red); font-weight:700;">${biz.last_reg_date}</span>`:biz.last_reg_date}</td>
+        ${biz.field_status.map(f=>`<td>${f.입력비율<70?`<span class="badge red">${fmt(f.입력건수)}/${fmt(f.총건수)}</span>`:`${fmt(f.입력건수)}/${fmt(f.총건수)}`}</td>`).join('')}
+      </tr></tbody>
+    </table></div>
+  </div>
+  <div class="card">
+    ${cardHead('warn','핵심 요약')}
+    <div class="note" style="font-size:15px; line-height:1.9; color:var(--text);">
+    · ${biz.first_date} ~ ${biz.last_date} 기간 동안 <b>${fmt(biz.총거래건수)}건</b>, <b>${fmt(biz.총두수)}두</b>, <b style="color:var(--navy);">${eok(biz.총거래금액)}억원</b> 규모의 거래가 조사되었습니다.<br>
+    · 평균 kg당 거래단가는 <b style="color:var(--navy);">${fmt(biz.평균kg당가격)}원</b>, 평균 도체율은 <b>${biz.평균도체율}%</b>입니다.<br>
+    · ${rateAvailable ? `평균 지급률은 <b>${biz.평균지급률}%</b>입니다.` : `<b style="color:#B87500;">지급률이 입력된 거래가 없습니다.</b> 정산 확인을 위해 지급률 입력을 부탁드립니다.`}<br>
+    · 최근 등록일은 <b>${biz.last_reg_date}</b>${isStale?` (<b style="color:#B87500;">${biz.days_since_last_reg}일 경과, 최근 미등록 상태입니다</b>)`:` (${biz.days_since_last_reg}일 전)`}입니다.
+    </div>
+  </div>`;
+
+  const bizSeries = getBizSeries(biz);
+  destroyBizChart('c_biz_amount');
+  fitScrollWidth('c_biz_amount', 'bizTrendInner', bizSeries.src.length, bizSeries.gran);
+  const bizXTicks = bizSeries.gran === '일' ? {
+    color: (ctx) => {
+      const item = bizSeries.src[ctx.index];
+      if (!item) return '#6B7A88';
+      const dow = new Date(item.일자 + 'T00:00:00').getDay();
+      if (dow === 0) return CH.red;
+      if (dow === 6) return CH.blue;
+      return '#6B7A88';
+    }
+  } : {};
+  bizCharts['c_biz_amount'] = new Chart(document.getElementById('c_biz_amount'), {
+    data:{ labels: bizLabels(bizSeries.src, bizSeries.labelKey, bizSeries.gran),
+      datasets:[
+        {type:'bar', label:'거래금액(억원)', data: bizSeries.src.map(m=>+(m.총거래금액/1e8).toFixed(1)), backgroundColor:CH.navy2, borderRadius:4, maxBarThickness:40, yAxisID:'y', order:2},
+        {type:'line', label:'평균 kg당가격(원)', data: bizSeries.src.map(m=>m[bizSeries.priceKey]), borderColor:CH.accent, backgroundColor:CH.accent, yAxisID:'y1', order:1, borderWidth:2.5, pointRadius:4, tension:.2}
+      ]},
+    options:{responsive:true, maintainAspectRatio:false,
+      scales:{ x:{ ticks: bizXTicks }, y:{position:'left', title:{display:true,text:'억원'}}, y1:{position:'right', grid:{drawOnChartArea:false}, title:{display:true,text:'원/kg'}} },
+      plugins:{legend:{position:'bottom'}} }
+  });
+
+  destroyBizChart('c_biz_count');
+  fitScrollWidth('c_biz_count', 'bizCountInner', bizSeries.src.length, bizSeries.gran);
+  bizCharts['c_biz_count'] = new Chart(document.getElementById('c_biz_count'), {
+    data:{ labels: bizLabels(bizSeries.src, bizSeries.labelKey, bizSeries.gran),
+      datasets:[
+        {type:'bar', label:'거래건수', data: bizSeries.src.map(m=>m.거래건수), backgroundColor:CH.navy2, borderRadius:4, maxBarThickness:40, yAxisID:'y', order:2},
+        {type:'line', label:'거래두수', data: bizSeries.src.map(m=>m.총두수), borderColor:CH.green, backgroundColor:CH.green, yAxisID:'y1', order:1, borderWidth:2.5, pointRadius:4, tension:.2}
+      ]},
+    options:{responsive:true, maintainAspectRatio:false,
+      scales:{ y:{position:'left', title:{display:true,text:'건'}}, y1:{position:'right', grid:{drawOnChartArea:false}, title:{display:true,text:'두'}} },
+      plugins:{legend:{position:'bottom'}} }
+  });
+
+  destroyBizChart('c_biz_gender'); // 업체 전환 등으로 이전 렌더의 차트가 남아있을 수 있어 항상 먼저 정리한다
+  if ((biz.gender.암 + biz.gender.거세 + biz.gender.수) > 0) {
+    bizCharts['c_biz_gender'] = new Chart(document.getElementById('c_biz_gender'), {
+      type:'pie',
+      data:{ labels:['암','거세','수'], datasets:[{data:[biz.gender.암, biz.gender.거세, biz.gender.수], backgroundColor:[CH.red, CH.navy2, CH.accent]}] },
+      options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'right'}}}
+    });
+  }
+
+  fitScrollWidth('c_biz_yield', 'bizYieldInner', bizSeries.src.length, bizSeries.gran);
+  destroyBizChart('c_biz_yield');
+  bizCharts['c_biz_yield'] = new Chart(document.getElementById('c_biz_yield'), {
+    type:'line',
+    data:{ labels: bizLabels(bizSeries.src, bizSeries.labelKey, bizSeries.gran), datasets:[{label:'평균 도체율(%)', data: bizSeries.src.map(m=>m.평균도체율), borderColor:CH.green, backgroundColor:'rgba(46,139,87,.12)', tension:.3, fill:true, pointRadius:4}] },
+    options:{responsive:true, maintainAspectRatio:false, scales:{ x:{ ticks: bizXTicks } }, plugins:{legend:{display:false}} }
+  });
+
+  destroyBizChart('c_biz_rate'); // 업체 전환 등으로 이전 렌더의 차트가 남아있을 수 있어 항상 먼저 정리한다
+  if (rateAvailable) {
+    fitScrollWidth('c_biz_rate', 'bizRateInner', bizSeries.src.length, bizSeries.gran);
+    bizCharts['c_biz_rate'] = new Chart(document.getElementById('c_biz_rate'), {
+      type:'line',
+      data:{ labels: bizLabels(bizSeries.src, bizSeries.labelKey, bizSeries.gran), datasets:[{label:'평균 지급률(%)', data: bizSeries.src.map(m=>m.평균지급률), borderColor:CH.accent, backgroundColor:'rgba(242,169,0,.15)', tension:.3, fill:true, pointRadius:4, spanGaps:true}] },
+      options:{responsive:true, maintainAspectRatio:false, scales:{ x:{ ticks: bizXTicks } }, plugins:{legend:{display:false}} }
+    });
+  }
+
+  destroyBizChart('c_biz_hist');
+  bizCharts['c_biz_hist'] = new Chart(document.getElementById('c_biz_hist'), {
+    type:'bar',
+    data:{ labels: biz.rate_histogram.map(d=>d.구간), datasets:[{label:'건수', data: biz.rate_histogram.map(d=>d.건수), backgroundColor: biz.rate_histogram.map(d=>d.구간==='미입력'?CH.gray:CH.navy2), borderRadius:4}] },
+    options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}} }
+  });
+}
+
 // ================= 네비게이션, 테마 관리 & 초기화 =================
-const titles = {p1:'종합현황', p3:'업체별 비교', p4:'지역별 현황', p5:'성별·도체 분석', p6:'지급률 분석', p7:'데이터 품질·이상치'};
-const renderFns = {p1:renderP1, p3:renderP3, p4:renderP4, p5:renderP5, p6:renderP6, p7:renderP7};
+const titles = {p1:'종합현황', p3:'업체별 비교', p4:'지역별 현황', p5:'성별·도체 분석', p6:'지급률 분석', p7:'데이터 품질·이상치', p8:'업체 종합현황'};
+const renderFns = {p1:renderP1, p3:renderP3, p4:renderP4, p5:renderP5, p6:renderP6, p7:renderP7, p8:renderP8};
 let rendered = {};
+
+// 메뉴마다 서로 다른 URL(해시)이 붙도록 페이지 id <-> 해시 문자열을 매핑한다.
+const PAGE_HASH = {p1:'overview', p3:'company', p4:'region', p5:'gender', p6:'rate', p7:'quality', p8:'biz-overview'};
+const HASH_PAGE = Object.fromEntries(Object.entries(PAGE_HASH).map(([pid, h]) => [h, pid]));
+
+// 메뉴 클릭·URL 해시 변경(뒤로/앞으로가기 포함) 양쪽에서 공통으로 쓰는 페이지 전환 함수.
+// updateHash=true일 때만(=사용자가 직접 메뉴를 클릭했을 때만) 새 히스토리 항목을 쌓는다.
+function activatePage(pid, updateHash){
+  if (!titles[pid]) pid = 'p1';
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.page === pid));
+  document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === pid));
+  document.getElementById('pageTitle').textContent = titles[pid];
+
+  // 업체 종합현황(p8)에서는 '지역' 검색은 의미가 없어 숨긴다.
+  // '업체' 선택은 자유롭게 열어둔다 - 업체별 접근 제한(자기 업체만 조회 가능하도록 막는 기능)은 추후 별도로 구현할 예정이며,
+  // 그 전까지는 검색영역에서 고른 업체의 통계를 그대로 보여준다(기본값은 로그인 주체를 가정한 MY_COMPANY).
+  const regionItemEl = document.getElementById('filterRegionItem');
+  const companySelEl = document.getElementById('filterCompany');
+  if (pid === 'p8') {
+    if (regionItemEl) regionItemEl.style.display = 'none';
+    if (companySelEl && !companySelEl.value) companySelEl.value = MY_COMPANY;
+  } else {
+    if (regionItemEl) regionItemEl.style.display = '';
+  }
+
+  if (!rendered[pid]) { renderFns[pid](); rendered[pid] = true; }
+  if (updateHash) {
+    const newHash = '#' + (PAGE_HASH[pid] || pid);
+    if (location.hash !== newHash) history.pushState(null, '', newHash);
+  }
+  // 태블릿/스마트폰에서는 메뉴가 화면을 덮는 오버레이이므로, 메뉴 선택 후 자동으로 닫아 콘텐츠를 보여준다.
+  if (isMobileViewport()) applySidebarState(true);
+}
 
 document.querySelectorAll('.nav-item').forEach(item=>{
   item.addEventListener('click', ()=>{
-    document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-    item.classList.add('active');
-    const pid = item.dataset.page;
-    document.getElementById(pid).classList.add('active');
-    document.getElementById('pageTitle').textContent = titles[pid];
-    if(!rendered[pid]){ renderFns[pid](); rendered[pid]=true; }
-    // 태블릿/스마트폰에서는 메뉴가 화면을 덮는 오버레이이므로, 메뉴 선택 후 자동으로 닫아 콘텐츠를 보여준다.
-    if (isMobileViewport()) applySidebarState(true);
+    activatePage(item.dataset.page, true);
   });
 });
+
+// 뒤로/앞으로가기(popstate)나 주소창에서 직접 해시를 바꾼 경우(hashchange) 모두 URL 기준으로 페이지를 맞춘다.
+function syncPageFromHash(){
+  const pid = HASH_PAGE[location.hash.replace('#', '')] || 'p1';
+  activatePage(pid, false);
+}
+window.addEventListener('popstate', syncPageFromHash);
+window.addEventListener('hashchange', syncPageFromHash);
 
 // ================= 좌측 메뉴(사이드바) 열기/닫기 =================
 // 1024px 이하(태블릿/스마트폰)에서는 사이드바가 화면을 덮는 오버레이 방식으로 바뀌므로,
@@ -3016,6 +3735,17 @@ document.getElementById('btnApplyFilter').addEventListener('click', function() {
   localStorage.setItem('search_region', region);
   localStorage.setItem('search_company', company);
 
+  // 업체용 화면(p8)은 자기 업체로 고정된 별도 집계이므로, 관리자용 DATA 재가공(processDashboardData)과
+  // 무관하게 선택된 기간만 그대로 반영해 다시 그린다. 지역/업체 선택은 p8에는 적용되지 않는다
+  // (업체는 자신의 거래만 조회할 수 있어야 하므로, 추후 해당 업체 계정에서는 지역/업체 선택 컨트롤 자체를 잠글 예정).
+  const activeNavItem = document.querySelector('.nav-item.active');
+  if (activeNavItem && activeNavItem.dataset.page === 'p8') {
+    rendered['p8'] = false;
+    renderP8();
+    rendered['p8'] = true;
+    return;
+  }
+
   // 데이터 재가공 및 리렌더링
   // processDashboardData가 false를 반환하면(조회 조건에 해당하는 거래가 0건) 화면은 이전 데이터를 그대로 유지한 채라서,
   // 아무 안내 없이 조용히 넘어가면 "검색이 반영 안 됐다"는 걸 사용자가 알 수 없다. 반드시 알려준다.
@@ -3102,7 +3832,8 @@ function loadSavedData() {
 
 loadSavedData();
 setChartDefaults();
-renderP1(); rendered.p1 = true;
+// 새로고침·북마크·공유 링크로 들어왔을 때 URL 해시에 맞는 메뉴가 바로 열리도록 한다 (없으면 종합현황 기본값).
+activatePage(HASH_PAGE[location.hash.replace('#', '')] || 'p1', false);
 
 </script>
 </body>
