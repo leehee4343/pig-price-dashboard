@@ -604,9 +604,55 @@ tbody tr:hover { background: var(--bg); }
   .table-scroll { max-height: none !important; overflow: visible !important; }
   .card, .kpi { box-shadow: none !important; break-inside: avoid; page-break-inside: avoid; }
 }
+
+/* 로딩 오버레이 스타일 */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+.loading-overlay.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid rgba(22, 70, 111, 0.1);
+  border-top-color: #16466F;
+  border-radius: 50%;
+  animation: loading-spin 1s linear infinite;
+}
+.loading-text {
+  margin-top: 16px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #16466F;
+  font-family: 'Noto Sans KR', sans-serif;
+}
+@keyframes loading-spin {
+  to { transform: rotate(360deg); }
+}
 </style>
 </head>
 <body>
+
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-spinner"></div>
+  <div class="loading-text" id="loadingText">서버에서 최신 엑셀 데이터를 가져오는 중...</div>
+</div>
 
 <div class="sidebar">
   <div class="logo">돼지 거래가격정보<span>통계 분석 대시보드 · 2026.01~07</span></div>
@@ -3760,7 +3806,64 @@ document.getElementById('btnApplyFilter').addEventListener('click', function() {
 // (선택 안 한 지역의 업체를 고르면 결과가 항상 0건이 되는 걸 방지)
 document.getElementById('filterRegion').addEventListener('change', populateCompanyFilter);
 
-function loadSavedData() {
+async function fetchAndParseExcel(url) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  const arrayBuffer = await response.arrayBuffer();
+  const data = new Uint8Array(arrayBuffer);
+  const workbook = XLSX.read(data, {type: 'array'});
+  const sheetName = workbook.SheetNames[0];
+  const worksheet = workbook.Sheets[sheetName];
+  return XLSX.utils.sheet_to_json(worksheet, {header: 1});
+}
+
+async function loadServerExcelData() {
+  const overlay = document.getElementById('loadingOverlay');
+  const txtPrice = document.getElementById('textPriceExcel');
+  const lblPrice = document.getElementById('labelPriceExcel');
+  const txtCompany = document.getElementById('textCompanyExcel');
+  const lblCompany = document.getElementById('labelCompanyExcel');
+  
+  if (overlay) overlay.classList.remove('hidden');
+
+  try {
+    const priceUrl = encodeURIComponent('돼지 거래가격정보(202601~202607.xlsx');
+    const companyUrl = encodeURIComponent('업체정보(202601~202607.xlsx');
+
+    const [priceRows, companyRows] = await Promise.all([
+      fetchAndParseExcel(priceUrl),
+      fetchAndParseExcel(companyUrl)
+    ]);
+
+    excelPriceRows = priceRows;
+    excelCompanyRows = companyRows;
+
+    if (txtPrice) txtPrice.textContent = "1. 가격정보 완료 (🟢)";
+    if (lblPrice) lblPrice.classList.add('loaded');
+    if (txtCompany) txtCompany.textContent = "2. 업체정보 완료 (🟢)";
+    if (lblCompany) lblCompany.classList.add('loaded');
+
+    initFilterRange();
+
+    const start = document.getElementById('filterStartDate').value;
+    const end = document.getElementById('filterEndDate').value;
+    const region = document.getElementById('filterRegion').value;
+    const company = document.getElementById('filterCompany').value;
+    processDashboardData(start, end, region, company);
+
+  } catch (error) {
+    console.warn('Failed to load excel files from server. Falling back to local storage or embedded data.', error);
+    loadLocalOrEmbeddedData();
+  } finally {
+    if (overlay) {
+      setTimeout(() => {
+        overlay.classList.add('hidden');
+      }, 500);
+    }
+  }
+}
+
+function loadLocalOrEmbeddedData() {
   const savedPriceStr = localStorage.getItem('excel_price_rows');
   const savedCompStr = localStorage.getItem('excel_company_rows');
   
@@ -3782,10 +3885,8 @@ function loadSavedData() {
         if (lbl) lbl.classList.add('loaded');
       }
       
-      // 필터 영역 활성화 및 날짜/지역 조회 조건 복원
       initFilterRange();
 
-      // 복원된 시작/종료일·지역 기준으로 즉시 DATA 가공
       const start = document.getElementById('filterStartDate').value;
       const end = document.getElementById('filterEndDate').value;
       const region = document.getElementById('filterRegion').value;
@@ -3794,46 +3895,49 @@ function loadSavedData() {
 
     } catch(e) {
       console.error('Failed to parse saved excel data', e);
+      loadEmbeddedOnly();
     }
   } else {
-    // 로컬 저장소에 이전 업로드 기록이 없으면, 문서에 내장된 기본 원본 데이터(RAW_PRICE_HOLDER/RAW_COMPANY_HOLDER)로 대체한다.
-    // 이렇게 해야 파일을 수동으로 업로드하지 않아도 기간 조회 캘린더가 처음부터 활성화되고 동작한다.
-    try {
-      const rawPriceEl = document.getElementById('RAW_PRICE_HOLDER');
-      const rawCompEl = document.getElementById('RAW_COMPANY_HOLDER');
-      if (rawPriceEl && rawCompEl) {
-        excelPriceRows = JSON.parse(rawPriceEl.textContent);
-        excelCompanyRows = JSON.parse(rawCompEl.textContent);
-
-        const txt1 = document.getElementById('textPriceExcel');
-        const lbl1 = document.getElementById('labelPriceExcel');
-        if (txt1) txt1.textContent = "1. 가격정보 완료 (🟢)";
-        if (lbl1) lbl1.classList.add('loaded');
-        const txt2 = document.getElementById('textCompanyExcel');
-        const lbl2 = document.getElementById('labelCompanyExcel');
-        if (txt2) txt2.textContent = "2. 업체정보 완료 (🟢)";
-        if (lbl2) lbl2.classList.add('loaded');
-
-        initFilterRange();
-        const start = document.getElementById('filterStartDate').value;
-        const end = document.getElementById('filterEndDate').value;
-        const region = document.getElementById('filterRegion').value;
-        const company = document.getElementById('filterCompany').value;
-        processDashboardData(start, end, region, company);
-      } else {
-        initFilterRange();
-      }
-    } catch(e) {
-      console.error('Failed to load embedded default excel data', e);
-      initFilterRange();
-    }
+    loadEmbeddedOnly();
   }
 }
 
-loadSavedData();
+function loadEmbeddedOnly() {
+  try {
+    const rawPriceEl = document.getElementById('RAW_PRICE_HOLDER');
+    const rawCompEl = document.getElementById('RAW_COMPANY_HOLDER');
+    if (rawPriceEl && rawCompEl) {
+      excelPriceRows = JSON.parse(rawPriceEl.textContent);
+      excelCompanyRows = JSON.parse(rawCompEl.textContent);
+
+      const txt1 = document.getElementById('textPriceExcel');
+      const lbl1 = document.getElementById('labelPriceExcel');
+      if (txt1) txt1.textContent = "1. 가격정보 완료 (🟢)";
+      if (lbl1) lbl1.classList.add('loaded');
+      const txt2 = document.getElementById('textCompanyExcel');
+      const lbl2 = document.getElementById('labelCompanyExcel');
+      if (txt2) txt2.textContent = "2. 업체정보 완료 (🟢)";
+      if (lbl2) lbl2.classList.add('loaded');
+
+      initFilterRange();
+      const start = document.getElementById('filterStartDate').value;
+      const end = document.getElementById('filterEndDate').value;
+      const region = document.getElementById('filterRegion').value;
+      const company = document.getElementById('filterCompany').value;
+      processDashboardData(start, end, region, company);
+    } else {
+      initFilterRange();
+    }
+  } catch(e) {
+    console.error('Failed to load embedded default excel data', e);
+    initFilterRange();
+  }
+}
+
 setChartDefaults();
-// 새로고침·북마크·공유 링크로 들어왔을 때 URL 해시에 맞는 메뉴가 바로 열리도록 한다 (없으면 종합현황 기본값).
-activatePage(HASH_PAGE[location.hash.replace('#', '')] || 'p1', false);
+loadServerExcelData().then(() => {
+  activatePage(HASH_PAGE[location.hash.replace('#', '')] || 'p1', false);
+});
 
 </script>
 </body>
