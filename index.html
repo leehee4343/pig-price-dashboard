@@ -1900,11 +1900,9 @@ function autoRenderAllChartTables() {
   canvases.forEach(canvas => {
     const id = canvas.id;
     if (!id) return;
-    if (id.startsWith('c_')) {
-      setTimeout(() => {
-        generateTableFromChart(id);
-      }, 150);
-    }
+    setTimeout(() => {
+      generateTableFromChart(id);
+    }, 150);
   });
 }
 
