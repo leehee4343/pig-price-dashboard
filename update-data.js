@@ -2,6 +2,28 @@ const XLSX = require('xlsx');
 const fs = require('fs');
 const path = require('path');
 
+// 명령줄 인자 분석 (--token 옵션)
+const args = process.argv;
+const tokenIdx = args.indexOf('--token');
+let inputToken = null;
+if (tokenIdx !== -1 && args[tokenIdx + 1]) {
+  inputToken = args[tokenIdx + 1].trim();
+}
+
+function encryptToken(token, key) {
+  let xorStr = '';
+  for (let i = 0; i < token.length; i++) {
+    xorStr += String.fromCharCode(token.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+  }
+  let hex = '';
+  for (let i = 0; i < xorStr.length; i++) {
+    let h = xorStr.charCodeAt(i).toString(16);
+    if (h.length < 2) h = '0' + h;
+    hex += h;
+  }
+  return hex;
+}
+
 // 엑셀 파일 경로
 const priceFile = path.join(__dirname, '돼지 거래가격정보(202601~202607.xlsx');
 const companyFile = path.join(__dirname, '업체정보(202601~202607.xlsx');
@@ -546,6 +568,7 @@ let htmlContent = fs.readFileSync(htmlPath, 'utf8');
 const dataHolderRegex = /<script id="DATA_HOLDER" type="application\/json">[\s\S]*?<\/script>/;
 const rawPriceRegex = /<script id="RAW_PRICE_HOLDER" type="application\/json">[\s\S]*?<\/script>/;
 const rawCompanyRegex = /<script id="RAW_COMPANY_HOLDER" type="application\/json">[\s\S]*?<\/script>/;
+const tokenRegex = /<script id="ENCRYPTED_TOKEN_HOLDER" type="application\/json">[\s\S]*?<\/script>/;
 
 if (!dataHolderRegex.test(htmlContent) || !rawPriceRegex.test(htmlContent) || !rawCompanyRegex.test(htmlContent)) {
   console.error('Error: Could not locate data holder tags in index.html.');
@@ -555,6 +578,16 @@ if (!dataHolderRegex.test(htmlContent) || !rawPriceRegex.test(htmlContent) || !r
 htmlContent = htmlContent.replace(dataHolderRegex, `<script id="DATA_HOLDER" type="application/json">${JSON.stringify(DATA)}</script>`);
 htmlContent = htmlContent.replace(rawPriceRegex, `<script id="RAW_PRICE_HOLDER" type="application/json">${JSON.stringify(priceRows)}</script>`);
 htmlContent = htmlContent.replace(rawCompanyRegex, `<script id="RAW_COMPANY_HOLDER" type="application/json">${JSON.stringify(companyRows)}</script>`);
+
+if (inputToken) {
+  const encryptedHex = encryptToken(inputToken, "1111");
+  if (tokenRegex.test(htmlContent)) {
+    htmlContent = htmlContent.replace(tokenRegex, `<script id="ENCRYPTED_TOKEN_HOLDER" type="application/json">"${encryptedHex}"</script>`);
+    console.log('🔒 GitHub Token has been encrypted and embedded successfully.');
+  } else {
+    console.warn('Warning: ENCRYPTED_TOKEN_HOLDER script tag was not found in index.html.');
+  }
+}
 
 fs.writeFileSync(htmlPath, htmlContent, 'utf8');
 console.log('🟢 Success: index.html has been updated with the compiled Excel data!');
