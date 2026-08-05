@@ -3736,10 +3736,27 @@ document.getElementById('btnPrint').addEventListener('click', () => {
   window.print();
 });
 
+let isAuthorized = false;
+function checkUploadPassword() {
+  if (isAuthorized) return true;
+  const pw = prompt("데이터를 업로드하려면 비밀번호를 입력해 주세요:");
+  if (pw === "1111") {
+    isAuthorized = true;
+    return true;
+  }
+  alert("비밀번호가 일치하지 않습니다. 업로드가 취소됩니다.");
+  return false;
+}
+
 // 파일 업로드 이벤트 바인딩
 document.getElementById('inputPriceExcel').addEventListener('change', function(e) {
   const file = e.target.files[0];
   if (!file) return;
+  
+  if (!checkUploadPassword()) {
+    e.target.value = '';
+    return;
+  }
   
   document.getElementById('textPriceExcel').textContent = "1. 가격정보 파싱 중...";
   readExcelFile(file, function(rawRows) {
@@ -3765,6 +3782,11 @@ document.getElementById('inputPriceExcel').addEventListener('change', function(e
 document.getElementById('inputCompanyExcel').addEventListener('change', function(e) {
   const file = e.target.files[0];
   if (!file) return;
+  
+  if (!checkUploadPassword()) {
+    e.target.value = '';
+    return;
+  }
   
   document.getElementById('textCompanyExcel').textContent = "2. 업체정보 파싱 중...";
   readExcelFile(file, function(rawRows) {
