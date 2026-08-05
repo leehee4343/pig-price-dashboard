@@ -3749,6 +3749,65 @@ function checkUploadPassword() {
   return false;
 }
 
+function checkGithubToken() {
+  let token = localStorage.getItem('github_pat_token');
+  if (!token) {
+    token = prompt("GitHub에 데이터를 영구 동기화하기 위해 GitHub Personal Access Token(PAT)을 입력해 주세요 (최초 1회만 필요, 공백 시 동기화 제외):");
+    if (token) {
+      localStorage.setItem('github_pat_token', token.trim());
+    }
+  }
+  return token ? token.trim() : null;
+}
+
+async function getGithubFileSha(token, filename) {
+  const url = `https://api.github.com/repos/leehee4343/pig-price-dashboard/contents/${encodeURIComponent(filename)}`;
+  try {
+    const res = await fetch(url, {
+      headers: { 'Authorization': `token ${token}` }
+    });
+    if (res.status === 404) return null;
+    if (!res.ok) throw new Error(`SHA 조회 실패: ${res.statusText}`);
+    const data = await res.json();
+    return data.sha;
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+}
+
+async function uploadFileToGithub(token, filename, arrayBuffer) {
+  let binary = '';
+  const bytes = new Uint8Array(arrayBuffer);
+  const len = bytes.byteLength;
+  for (let i = 0; i < len; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  const base64Content = btoa(binary);
+
+  const sha = await getGithubFileSha(token, filename);
+  const url = `https://api.github.com/repos/leehee4343/pig-price-dashboard/contents/${encodeURIComponent(filename)}`;
+  
+  const body = {
+    message: `database: update ${filename} via web dashboard`,
+    content: base64Content
+  };
+  if (sha) body.sha = sha;
+
+  const res = await fetch(url, {
+    method: 'PUT',
+    headers: {
+      'Authorization': `token ${token}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(body)
+  });
+  if (!res.ok) {
+    const errData = await res.json().catch(() => ({}));
+    throw new Error(errData.message || res.statusText);
+  }
+}
+
 // 파일 업로드 이벤트 바인딩
 document.getElementById('inputPriceExcel').addEventListener('change', function(e) {
   const file = e.target.files[0];
@@ -3758,11 +3817,29 @@ document.getElementById('inputPriceExcel').addEventListener('change', function(e
     e.target.value = '';
     return;
   }
-  
+
+  const token = checkGithubToken();
   document.getElementById('textPriceExcel').textContent = "1. 가격정보 파싱 중...";
+  
+  if (token) {
+    const reader = new FileReader();
+    reader.onload = function(evt) {
+      uploadFileToGithub(token, '돼지 거래가격정보(202601~202607.xlsx', evt.target.result)
+        .then(() => {
+          document.getElementById('textPriceExcel').textContent = "1. 가격정보 완료 & GitHub 동기화 성공 (🟢)";
+        })
+        .catch(err => {
+          alert(`GitHub 동기화 실패: ${err.message}\n토큰 권한을 확인해 주세요. 로컬에는 데이터가 정상 반영됩니다.`);
+          document.getElementById('textPriceExcel').textContent = "1. 가격정보 완료 & 동기화 실패 (⚠️)";
+        });
+    };
+    reader.readAsArrayBuffer(file);
+  } else {
+    document.getElementById('textPriceExcel').textContent = "1. 가격정보 완료 (로컬 뷰 적용 🟢)";
+  }
+
   readExcelFile(file, function(rawRows) {
     excelPriceRows = rawRows;
-    document.getElementById('textPriceExcel').textContent = "1. 가격정보 완료 (🟢)";
     document.getElementById('labelPriceExcel').classList.add('loaded');
     
     if (excelPriceRows && excelCompanyRows) {
@@ -3788,11 +3865,29 @@ document.getElementById('inputCompanyExcel').addEventListener('change', function
     e.target.value = '';
     return;
   }
-  
+
+  const token = checkGithubToken();
   document.getElementById('textCompanyExcel').textContent = "2. 업체정보 파싱 중...";
+  
+  if (token) {
+    const reader = new FileReader();
+    reader.onload = function(evt) {
+      uploadFileToGithub(token, '업체정보(202601~202607.xlsx', evt.target.result)
+        .then(() => {
+          document.getElementById('textCompanyExcel').textContent = "2. 업체정보 완료 & GitHub 동기화 성공 (🟢)";
+        })
+        .catch(err => {
+          alert(`GitHub 동기화 실패: ${err.message}\n토큰 권한을 확인해 주세요. 로컬에는 데이터가 정상 반영됩니다.`);
+          document.getElementById('textCompanyExcel').textContent = "2. 업체정보 완료 & 동기화 실패 (⚠️)";
+        });
+    };
+    reader.readAsArrayBuffer(file);
+  } else {
+    document.getElementById('textCompanyExcel').textContent = "2. 업체정보 완료 (로컬 뷰 적용 🟢)";
+  }
+
   readExcelFile(file, function(rawRows) {
     excelCompanyRows = rawRows;
-    document.getElementById('textCompanyExcel').textContent = "2. 업체정보 완료 (🟢)";
     document.getElementById('labelCompanyExcel').classList.add('loaded');
     
     if (excelPriceRows && excelCompanyRows) {
