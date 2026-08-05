@@ -1894,20 +1894,16 @@ function generateTableFromChartInstance(chart) {
 }
 
 function autoRenderAllChartTables() {
-  // activeCharts 순회
-  activeCharts.forEach(chart => {
-    if (chart && chart.canvas && chart.canvas.id) {
-      generateTableFromChartInstance(chart);
-    }
-  });
-  
-  // legacyCharts 순회
-  Object.keys(legacyCharts).forEach(key => {
-    const chart = legacyCharts[key];
-    if (chart && chart.canvas && chart.canvas.id) {
-      generateTableFromChartInstance(chart);
-    }
-  });
+  if (typeof Chart !== 'undefined' && Chart.instances) {
+    Object.keys(Chart.instances).forEach(key => {
+      const chart = Chart.instances[key];
+      if (chart && chart.canvas && chart.canvas.id) {
+        setTimeout(() => {
+          generateTableFromChartInstance(chart);
+        }, 150);
+      }
+    });
+  }
 }
 
 // ================= 유틸 & 테마 트래킹 =================
