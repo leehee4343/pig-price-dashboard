@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "update": "node update-data.js"
+  },
   "dependencies": {
     "xlsx": "^0.18.5"
   }
