@@ -1796,7 +1796,116 @@ function updateDashboard() {
     const companyLabel = companySel && companySel.value ? ` · 업체: ${companySel.value}` : '';
     document.querySelector('.topbar .period').textContent = `조사기간 ${DATA.kpi.조사시작일} ~ ${DATA.kpi.조사종료일} (등록일 기준)${regionLabel}${companyLabel} · 자료: 업로드된 돼지거래가격조사 엑셀 데이터`;
     document.querySelector('.footer').textContent = `돼지 거래가격정보 통계 분석 대시보드 · 총 ${fmt(DATA.kpi.총거래건수)}건 거래 · ${DATA.kpi.총업체수}개 참여업체`;
+    autoRenderAllChartTables();
   }
+}
+
+function generateTableFromChart(chartId) {
+  const canvas = document.getElementById(chartId);
+  if (!canvas) return;
+  
+  const chart = Chart.getChart(canvas);
+  if (!chart) return;
+  
+  const tableId = 'auto_t_' + chartId;
+  let autoTableWrap = document.getElementById(tableId + '_wrap');
+  if (autoTableWrap) {
+    autoTableWrap.remove();
+  }
+  
+  const labels = chart.data.labels || [];
+  const datasets = chart.data.datasets || [];
+  if (!labels.length || !datasets.length) return;
+  
+  autoTableWrap = document.createElement('div');
+  autoTableWrap.id = tableId + '_wrap';
+  autoTableWrap.className = 'auto-table-wrap card';
+  autoTableWrap.style.cssText = 'margin-top:16px; padding:16px; border-top:1px solid #eef2f9; background:#ffffff; border-radius:8px; box-shadow:0 2px 12px 0 rgba(0,0,0,0.05);';
+  
+  const headDiv = document.createElement('div');
+  headDiv.className = 'card-head';
+  headDiv.style.cssText = 'display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; position:relative; border-bottom:1px solid #f2f5fa; padding-bottom:8px;';
+  
+  const parentCard = canvas.closest('.card');
+  let titleText = '데이터 수치 표';
+  if (parentCard) {
+    const cardTitleEl = parentCard.querySelector('.card-head h3, .card-head-title');
+    if (cardTitleEl) {
+      titleText = cardTitleEl.innerText.replace('📊', '').replace('📈', '').replace('won','').replace('doc','').trim() + ' 상세 데이터';
+    }
+  }
+  
+  const title = document.createElement('h3');
+  title.className = 'card-head-title';
+  title.innerText = '📊 ' + titleText;
+  title.style.cssText = 'font-size:12.5px; margin:0; font-weight:bold; color:#303133;';
+  
+  const btn = document.createElement('button');
+  btn.className = 'btn-excel-download';
+  btn.setAttribute('data-target', tableId);
+  btn.innerHTML = '📊 엑셀 다운로드';
+  btn.style.cssText = 'font-size:11px; padding:4px 8px; background:#409eff; border:none; border-radius:4px; cursor:pointer; color:#ffffff; font-weight:bold; transition: background 0.2s;';
+  btn.addEventListener('mouseover', () => btn.style.background = '#66b1ff');
+  btn.addEventListener('mouseout', () => btn.style.background = '#409eff');
+  btn.addEventListener('click', () => {
+    downloadTableToExcel(tableId, titleText);
+  });
+  
+  headDiv.appendChild(title);
+  headDiv.appendChild(btn);
+  autoTableWrap.appendChild(headDiv);
+  
+  const tableScroll = document.createElement('div');
+  tableScroll.className = 'table-scroll';
+  
+  const table = document.createElement('table');
+  table.id = tableId;
+  
+  let theadHtml = '<thead><tr><th>구분</th>';
+  labels.forEach(lbl => {
+    theadHtml += `<th>${lbl}</th>`;
+  });
+  theadHtml += '</tr></thead>';
+  
+  let tbodyHtml = '<tbody>';
+  datasets.forEach(ds => {
+    tbodyHtml += `<tr><td class="strong">${ds.label || '수치'}</td>`;
+    ds.data.forEach(val => {
+      let displayVal = val;
+      if (typeof val === 'number') {
+        displayVal = val.toLocaleString();
+      } else if (val == null) {
+        displayVal = '-';
+      }
+      tbodyHtml += `<td>${displayVal}</td>`;
+    });
+    tbodyHtml += '</tr>';
+  });
+  tbodyHtml += '</tbody>';
+  
+  table.innerHTML = theadHtml + tbodyHtml;
+  tableScroll.appendChild(table);
+  autoTableWrap.appendChild(tableScroll);
+  
+  const chartWrap = canvas.closest('.chart-wrap');
+  if (chartWrap) {
+    chartWrap.parentNode.insertBefore(autoTableWrap, chartWrap.nextSibling);
+  } else {
+    canvas.parentNode.insertBefore(autoTableWrap, canvas.nextSibling);
+  }
+}
+
+function autoRenderAllChartTables() {
+  const canvases = document.querySelectorAll('canvas');
+  canvases.forEach(canvas => {
+    const id = canvas.id;
+    if (!id) return;
+    if (id.startsWith('c_')) {
+      setTimeout(() => {
+        generateTableFromChart(id);
+      }, 150);
+    }
+  });
 }
 
 // ================= 유틸 & 테마 트래킹 =================
