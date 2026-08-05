@@ -1800,12 +1800,10 @@ function updateDashboard() {
   }
 }
 
-function generateTableFromChart(chartId) {
-  const canvas = document.getElementById(chartId);
+function generateTableFromChartInstance(chart) {
+  const canvas = chart.canvas;
   if (!canvas) return;
-  
-  const chart = Chart.getChart(canvas);
-  if (!chart) return;
+  const chartId = canvas.id;
   
   const tableId = 'auto_t_' + chartId;
   let autoTableWrap = document.getElementById(tableId + '_wrap');
@@ -1896,13 +1894,19 @@ function generateTableFromChart(chartId) {
 }
 
 function autoRenderAllChartTables() {
-  const canvases = document.querySelectorAll('canvas');
-  canvases.forEach(canvas => {
-    const id = canvas.id;
-    if (!id) return;
-    setTimeout(() => {
-      generateTableFromChart(id);
-    }, 150);
+  // activeCharts 순회
+  activeCharts.forEach(chart => {
+    if (chart && chart.canvas && chart.canvas.id) {
+      generateTableFromChartInstance(chart);
+    }
+  });
+  
+  // legacyCharts 순회
+  Object.keys(legacyCharts).forEach(key => {
+    const chart = legacyCharts[key];
+    if (chart && chart.canvas && chart.canvas.id) {
+      generateTableFromChartInstance(chart);
+    }
   });
 }
 
