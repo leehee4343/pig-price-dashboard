@@ -3472,8 +3472,13 @@ function renderP9(){
       scales:{ y:{position:'left', title:{display:true,text:'두'}}, y1:{position:'right', grid:{drawOnChartArea:false}, title:{display:true,text:'개소'}} },
       plugins:{legend:{position:'bottom'}} }
   });
-  lrBuildTable('lr_t_volume', ['구분', '조사두수(두)', '조사업체 수(개소)'],
-    s1.monthlyList.map(m => [lrYmLabel(m.ym), fmt(m.head), fmt(m.companyCount)]));
+  lrBuildTable('lr_t_volume',
+    ['구분', ...s1.monthlyList.map(m => lrYmLabel(m.ym))],
+    [
+      ['조사두수(두)', ...s1.monthlyList.map(m => fmt(m.head))],
+      ['조사업체 수(개소)', ...s1.monthlyList.map(m => fmt(m.companyCount))]
+    ]
+  );
 
   // 2. 업체 규모/지역 분포
   legacyCharts['lr_c_size_dist'] = new Chart(document.getElementById('lr_c_size_dist'), {
