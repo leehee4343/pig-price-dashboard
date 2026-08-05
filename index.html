@@ -1800,97 +1800,104 @@ function updateDashboard() {
   }
 }
 
+let renderTimer = {};
 function generateTableFromChartInstance(chart) {
   const canvas = chart.canvas;
   if (!canvas) return;
   const chartId = canvas.id;
   
-  const tableId = 'auto_t_' + chartId;
-  let autoTableWrap = document.getElementById(tableId + '_wrap');
-  if (autoTableWrap) {
-    autoTableWrap.remove();
+  if (renderTimer[chartId]) {
+    clearTimeout(renderTimer[chartId]);
   }
   
-  const labels = chart.data.labels || [];
-  const datasets = chart.data.datasets || [];
-  if (!labels.length || !datasets.length) return;
-  
-  autoTableWrap = document.createElement('div');
-  autoTableWrap.id = tableId + '_wrap';
-  autoTableWrap.className = 'auto-table-wrap card';
-  autoTableWrap.style.cssText = 'margin-top:16px; padding:16px; border-top:1px solid #eef2f9; background:#ffffff; border-radius:8px; box-shadow:0 2px 12px 0 rgba(0,0,0,0.05);';
-  
-  const headDiv = document.createElement('div');
-  headDiv.className = 'card-head';
-  headDiv.style.cssText = 'display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; position:relative; border-bottom:1px solid #f2f5fa; padding-bottom:8px;';
-  
-  const parentCard = canvas.closest('.card');
-  let titleText = '데이터 수치 표';
-  if (parentCard) {
-    const cardTitleEl = parentCard.querySelector('.card-head h3, .card-head-title');
-    if (cardTitleEl) {
-      titleText = cardTitleEl.innerText.replace('📊', '').replace('📈', '').replace('won','').replace('doc','').trim() + ' 상세 데이터';
+  renderTimer[chartId] = setTimeout(() => {
+    const tableId = 'auto_t_' + chartId;
+    let autoTableWrap = document.getElementById(tableId + '_wrap');
+    if (autoTableWrap) {
+      autoTableWrap.remove();
     }
-  }
-  
-  const title = document.createElement('h3');
-  title.className = 'card-head-title';
-  title.innerText = '📊 ' + titleText;
-  title.style.cssText = 'font-size:12.5px; margin:0; font-weight:bold; color:#303133;';
-  
-  const btn = document.createElement('button');
-  btn.className = 'btn-excel-download';
-  btn.setAttribute('data-target', tableId);
-  btn.innerHTML = '📊 엑셀 다운로드';
-  btn.style.cssText = 'font-size:11px; padding:4px 8px; background:#409eff; border:none; border-radius:4px; cursor:pointer; color:#ffffff; font-weight:bold; transition: background 0.2s;';
-  btn.addEventListener('mouseover', () => btn.style.background = '#66b1ff');
-  btn.addEventListener('mouseout', () => btn.style.background = '#409eff');
-  btn.addEventListener('click', () => {
-    downloadTableToExcel(tableId, titleText);
-  });
-  
-  headDiv.appendChild(title);
-  headDiv.appendChild(btn);
-  autoTableWrap.appendChild(headDiv);
-  
-  const tableScroll = document.createElement('div');
-  tableScroll.className = 'table-scroll';
-  
-  const table = document.createElement('table');
-  table.id = tableId;
-  
-  let theadHtml = '<thead><tr><th>구분</th>';
-  labels.forEach(lbl => {
-    theadHtml += `<th>${lbl}</th>`;
-  });
-  theadHtml += '</tr></thead>';
-  
-  let tbodyHtml = '<tbody>';
-  datasets.forEach(ds => {
-    tbodyHtml += `<tr><td class="strong">${ds.label || '수치'}</td>`;
-    ds.data.forEach(val => {
-      let displayVal = val;
-      if (typeof val === 'number') {
-        displayVal = val.toLocaleString();
-      } else if (val == null) {
-        displayVal = '-';
+    
+    const labels = chart.data.labels || [];
+    const datasets = chart.data.datasets || [];
+    if (!labels.length || !datasets.length) return;
+    
+    autoTableWrap = document.createElement('div');
+    autoTableWrap.id = tableId + '_wrap';
+    autoTableWrap.className = 'auto-table-wrap card';
+    autoTableWrap.style.cssText = 'margin-top:16px; padding:16px; border-top:1px solid #eef2f9; background:#ffffff; border-radius:8px; box-shadow:0 2px 12px 0 rgba(0,0,0,0.05);';
+    
+    const headDiv = document.createElement('div');
+    headDiv.className = 'card-head';
+    headDiv.style.cssText = 'display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; position:relative; border-bottom:1px solid #f2f5fa; padding-bottom:8px;';
+    
+    const parentCard = canvas.closest('.card');
+    let titleText = '데이터 수치 표';
+    if (parentCard) {
+      const cardTitleEl = parentCard.querySelector('.card-head h3, .card-head-title');
+      if (cardTitleEl) {
+        titleText = cardTitleEl.innerText.replace('📊', '').replace('📈', '').replace('won','').replace('doc','').trim() + ' 상세 데이터';
       }
-      tbodyHtml += `<td>${displayVal}</td>`;
+    }
+    
+    const title = document.createElement('h3');
+    title.className = 'card-head-title';
+    title.innerText = '📊 ' + titleText;
+    title.style.cssText = 'font-size:12.5px; margin:0; font-weight:bold; color:#303133;';
+    
+    const btn = document.createElement('button');
+    btn.className = 'btn-excel-download';
+    btn.setAttribute('data-target', tableId);
+    btn.innerHTML = '📊 엑셀 다운로드';
+    btn.style.cssText = 'font-size:11px; padding:4px 8px; background:#409eff; border:none; border-radius:4px; cursor:pointer; color:#ffffff; font-weight:bold; transition: background 0.2s;';
+    btn.addEventListener('mouseover', () => btn.style.background = '#66b1ff');
+    btn.addEventListener('mouseout', () => btn.style.background = '#409eff');
+    btn.addEventListener('click', () => {
+      downloadTableToExcel(tableId, titleText);
     });
-    tbodyHtml += '</tr>';
-  });
-  tbodyHtml += '</tbody>';
-  
-  table.innerHTML = theadHtml + tbodyHtml;
-  tableScroll.appendChild(table);
-  autoTableWrap.appendChild(tableScroll);
-  
-  const chartWrap = canvas.closest('.chart-wrap');
-  if (chartWrap) {
-    chartWrap.parentNode.insertBefore(autoTableWrap, chartWrap.nextSibling);
-  } else {
-    canvas.parentNode.insertBefore(autoTableWrap, canvas.nextSibling);
-  }
+    
+    headDiv.appendChild(title);
+    headDiv.appendChild(btn);
+    autoTableWrap.appendChild(headDiv);
+    
+    const tableScroll = document.createElement('div');
+    tableScroll.className = 'table-scroll';
+    
+    const table = document.createElement('table');
+    table.id = tableId;
+    
+    let theadHtml = '<thead><tr><th>구분</th>';
+    labels.forEach(lbl => {
+      theadHtml += `<th>${lbl}</th>`;
+    });
+    theadHtml += '</tr></thead>';
+    
+    let tbodyHtml = '<tbody>';
+    datasets.forEach(ds => {
+      tbodyHtml += `<tr><td class="strong">${ds.label || '수치'}</td>`;
+      ds.data.forEach(val => {
+        let displayVal = val;
+        if (typeof val === 'number') {
+          displayVal = val.toLocaleString();
+        } else if (val == null) {
+          displayVal = '-';
+        }
+        tbodyHtml += `<td>${displayVal}</td>`;
+      });
+      tbodyHtml += '</tr>';
+    });
+    tbodyHtml += '</tbody>';
+    
+    table.innerHTML = theadHtml + tbodyHtml;
+    tableScroll.appendChild(table);
+    autoTableWrap.appendChild(tableScroll);
+    
+    const chartWrap = canvas.closest('.chart-wrap');
+    if (chartWrap) {
+      chartWrap.parentNode.insertBefore(autoTableWrap, chartWrap.nextSibling);
+    } else {
+      canvas.parentNode.insertBefore(autoTableWrap, canvas.nextSibling);
+    }
+  }, 100);
 }
 
 function autoRenderAllChartTables() {
@@ -1898,12 +1905,22 @@ function autoRenderAllChartTables() {
     Object.keys(Chart.instances).forEach(key => {
       const chart = Chart.instances[key];
       if (chart && chart.canvas && chart.canvas.id) {
-        setTimeout(() => {
-          generateTableFromChartInstance(chart);
-        }, 150);
+        generateTableFromChartInstance(chart);
       }
     });
   }
+}
+
+// Chart.js 전역 플러그인을 활용한 실시간 이벤트 훅 매핑
+if (typeof Chart !== 'undefined') {
+  Chart.register({
+    id: 'autoTablePlugin',
+    afterUpdate: function(chart) {
+      if (chart && chart.canvas && chart.canvas.id) {
+        generateTableFromChartInstance(chart);
+      }
+    }
+  });
 }
 
 // ================= 유틸 & 테마 트래킹 =================
