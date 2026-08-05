@@ -3199,10 +3199,7 @@ function renderP9(){
   const s1First = s1.monthlyList[0];
   const s1Last = s1.monthlyList[s1.monthlyList.length - 1];
   const s1PeriodLabel = s1First ? (s1First.ym === s1Last.ym ? lrYmLabel(s1First.ym) : `${lrYmLabel(s1First.ym)}~${lrYmLabel(s1Last.ym)}`) : '';
-  const s1VolumeNote = !s1First ? ''
-    : s1First.ym === s1Last.ym
-    ? `${lrYmLabel(s1First.ym)} 조사두수 ${fmt(s1First.head)}두, 조사업체 ${s1First.companyCount}개소.`
-    : `${lrYmLabel(s1First.ym)} ${fmt(s1First.head)}두 → ${lrYmLabel(s1Last.ym)} ${fmt(s1Last.head)}두로 변화. 월별 조사두수는 등록된 업체 수·거래량 변동에 따라 달라집니다.`;
+  const s1VolumeNote = '';
   const s1RegionSorted = [...s1.regionOrder].sort((a, b) => s1.regionCount[b] - s1.regionCount[a]);
   const s1RegionNote = s1RegionSorted.length
     ? s1RegionSorted.slice(0, 2).map(rg => `${rg} ${s1.regionCount[rg]}개소(${fmt1(s1.regionCount[rg] / stats.companies.length * 100)}%)`).join(' · ') + ' 순으로 많습니다.'
