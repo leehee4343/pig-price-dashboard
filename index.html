@@ -3302,6 +3302,7 @@ function renderP9(){
         ${cardHead('trend', `월별 조사두수·업체수 추이(${s1PeriodLabel})`)}
         <div class="chart-wrap" style="height:280px;"><canvas id="lr_c_volume"></canvas></div>
         <div class="note">${s1VolumeNote}</div>
+        <div class="table-scroll" style="margin-top:12px;"><table id="lr_t_volume"></table></div>
       </div>
 
       <div class="subtitle">조사 업체 규모별·권역별 현황 (${s1PeriodLabel}, ${stats.companies.length}개소)</div>
@@ -3471,6 +3472,8 @@ function renderP9(){
       scales:{ y:{position:'left', title:{display:true,text:'두'}}, y1:{position:'right', grid:{drawOnChartArea:false}, title:{display:true,text:'개소'}} },
       plugins:{legend:{position:'bottom'}} }
   });
+  lrBuildTable('lr_t_volume', ['구분', '조사두수(두)', '조사업체 수(개소)'],
+    s1.monthlyList.map(m => [lrYmLabel(m.ym), fmt(m.head), fmt(m.companyCount)]));
 
   // 2. 업체 규모/지역 분포
   legacyCharts['lr_c_size_dist'] = new Chart(document.getElementById('lr_c_size_dist'), {
