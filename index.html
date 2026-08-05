@@ -3750,15 +3750,28 @@ function checkUploadPassword() {
   return false;
 }
 
-function checkGithubToken() {
-  let token = localStorage.getItem('github_pat_token');
-  if (!token) {
-    token = prompt("GitHub에 데이터를 영구 동기화하기 위해 GitHub Personal Access Token(PAT)을 입력해 주세요 (최초 1회만 필요, 공백 시 동기화 제외):");
-    if (token) {
-      localStorage.setItem('github_pat_token', token.trim());
-    }
+function decryptGithubToken(pw) {
+  const el = document.getElementById('ENCRYPTED_TOKEN_HOLDER');
+  if (!el) return null;
+  let hex = el.textContent.trim();
+  // Strip quotes if present
+  if (hex.startsWith('"') && hex.endsWith('"')) {
+    hex = hex.substring(1, hex.length - 1);
   }
-  return token ? token.trim() : null;
+  if (!hex || hex === '""') return null;
+  
+  // Hex to Str
+  let str = '';
+  for (let i = 0; i < hex.length; i += 2) {
+    str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
+  }
+  
+  // XOR Decrypt
+  let result = '';
+  for (let i = 0; i < str.length; i++) {
+    result += String.fromCharCode(str.charCodeAt(i) ^ pw.charCodeAt(i % pw.length));
+  }
+  return result.trim();
 }
 
 async function getGithubFileSha(token, filename) {
@@ -3819,7 +3832,7 @@ document.getElementById('inputPriceExcel').addEventListener('change', function(e
     return;
   }
 
-  const token = checkGithubToken();
+  const token = decryptGithubToken('1111');
   document.getElementById('textPriceExcel').textContent = "1. 가격정보 파싱 중...";
   
   if (token) {
@@ -3867,7 +3880,7 @@ document.getElementById('inputCompanyExcel').addEventListener('change', function
     return;
   }
 
-  const token = checkGithubToken();
+  const token = decryptGithubToken('1111');
   document.getElementById('textCompanyExcel').textContent = "2. 업체정보 파싱 중...";
   
   if (token) {
