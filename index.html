@@ -2815,6 +2815,40 @@ function renderP8(){
 // 가능해 섹션 단위로 하나씩 실데이터로 교체 중이다(도매시장 관련 섹션·비교값은 이번 범위에서 제외).
 // 상단 조회 필터(지역/업체/기간)는 activatePage()에서 이 페이지일 때만 숨긴다 — p9는 필터와 무관하게
 // 항상 현재 로드된 엑셀 전체(등록된 날짜 범위 전부)를 대상으로 집계한다.
+function downloadTableToExcel(tableId, filename) {
+  const table = document.getElementById(tableId);
+  if (!table) return;
+  
+  let csv = [];
+  const rows = table.querySelectorAll("tr");
+  
+  for (let i = 0; i < rows.length; i++) {
+    let row = [];
+    const cols = rows[i].querySelectorAll("td, th");
+    for (let j = 0; j < cols.length; j++) {
+      let data = cols[j].innerText.replace(/(\r\n|\n|\r)/gm, "").replace(/(\s\s+)/gm, " ");
+      if (data.includes(",")) {
+        data = '"' + data.replace(/"/g, '""') + '"';
+      }
+      row.push(data);
+    }
+    csv.push(row.join(","));
+  }
+  const csvString = "\ufeff" + csv.join("\n");
+  
+  const blob = new Blob([csvString], { type: "text/csv;charset=utf-8;" });
+  const link = document.createElement("a");
+  if (link.download !== undefined) {
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", (filename || tableId) + ".csv");
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+}
+
 function lrBuildTable(elId, headers, rows){
   const el = document.getElementById(elId);
   if (!el) return;
@@ -2822,6 +2856,36 @@ function lrBuildTable(elId, headers, rows){
   rows.forEach(r=>{ h += '<tr>' + r.map((c,i)=>`<td${i===0?' class="strong"':''}>${c}</td>`).join('') + '</tr>'; });
   h += '</tbody>';
   el.innerHTML = h;
+
+  let parent = el.parentElement;
+  if (parent && parent.classList.contains('table-scroll')) {
+    parent = parent.parentElement;
+  }
+  if (parent) {
+    let existingBtn = parent.querySelector(`.btn-excel-download[data-target="${elId}"]`);
+    if (!existingBtn) {
+      const btn = document.createElement('button');
+      btn.className = 'btn-excel-download';
+      btn.setAttribute('data-target', elId);
+      btn.innerHTML = '📊 엑셀 다운로드';
+      btn.style.cssText = 'float:right; margin-bottom:8px; font-size:11px; padding:4px 8px; background:#409eff; border:none; border-radius:4px; cursor:pointer; color:#ffffff; font-weight:bold; transition: background 0.2s;';
+      btn.addEventListener('mouseover', () => btn.style.background = '#66b1ff');
+      btn.addEventListener('mouseout', () => btn.style.background = '#409eff');
+      btn.addEventListener('click', () => {
+        const titleEl = parent.querySelector('.card-head-title, h3, .subtitle, .card-head h3');
+        const filename = titleEl ? titleEl.innerText.replace('📊', '').replace('📈', '').replace('trend', '').replace('won','').trim() : elId;
+        downloadTableToExcel(elId, filename);
+      });
+      
+      const cardHead = parent.querySelector('.card-head');
+      if (cardHead) {
+        cardHead.style.position = 'relative';
+        cardHead.appendChild(btn);
+      } else {
+        parent.insertBefore(btn, parent.firstChild);
+      }
+    }
+  }
 }
 
 // 업체 규모 구간 라벨. 원천 엑셀에는 '연간 처리능력' 같은 규모 정보가 없어
