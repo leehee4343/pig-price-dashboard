@@ -1110,6 +1110,7 @@ function processDashboardData(startDate, endDate, regionFilter, companyFilter) {
     const company = r[0];
     const dateStr = r[1];
     if (!company || !dateStr) continue;
+    if (TEST_COMPANIES.includes(company)) continue;
     
     // 등록일자(index 16) 기준 기간 검색 필터링 적용
     let regDateStr = dateStr; // 폴백: 조사일자

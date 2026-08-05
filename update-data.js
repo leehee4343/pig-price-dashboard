@@ -108,6 +108,7 @@ for (let i = 3; i < priceRows.length; i++) {
   const company = r[0];
   const dateStr = r[1];
   if (!company || !dateStr) continue;
+  if (TEST_COMPANIES.includes(company)) continue;
   
   let regDateStr = dateStr;
   if (r[16]) {
